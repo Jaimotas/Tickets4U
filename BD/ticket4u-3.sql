@@ -67,7 +67,8 @@ CREATE TABLE Descuento (
     id_pedido INT NOT NULL UNIQUE,
     id_evento INT NOT NULL UNIQUE,
     codigo VARCHAR(50) NOT NULL UNIQUE,
-    porcentaje INT NOT NULL,
+    porcentaje INT(3) NOT NULL,
     tiempo_expiracion DATETIME NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
