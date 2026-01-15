@@ -1,19 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    android:background="#F5F5F5">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sex4All!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- BARRA SUPERIOR -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#673AB7"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_launcher_foreground"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Tickets4U"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp" />
+
+        <ImageView
+            android:id="@+id/icon_profile"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="@android:color/white" />
+    </LinearLayout>
+
+    <!-- CONTENIDO SCROLLEABLE -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Título eventos destacados -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eventos Destacados"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Lista destacados -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/eventos_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:padding="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/event_item" />
+
+            <!-- Título + flecha eventos actuales -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Eventos actuales"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A" />
+
+                <ImageView
+                    android:id="@+id/arrow_eventos_actuales"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_arrow_forward"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <!-- Lista horizontal eventos actuales -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/eventos_actuales_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/event_item" />
+
+            <!-- TÍTULO EVENTOS INTERNACIONALES -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eventos internacionales"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- LISTA HORIZONTAL EVENTOS INTERNACIONALES -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/mas_eventos_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/event_item" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
