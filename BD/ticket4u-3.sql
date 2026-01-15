@@ -31,12 +31,15 @@ CREATE TABLE Direccion (
 CREATE TABLE Evento (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_admin INT NOT NULL UNIQUE,
+    id_direccion INT NOT NULL,
     nombre VARCHAR(150) NOT NULL,
     descripcion TEXT,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE,
     aforo INT NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_admin) REFERENCES Usuarios(id),
+    FOREIGN KEY (id_direccion) REFERENCES Direccion(id)
 );
 
 
@@ -46,7 +49,9 @@ CREATE TABLE Pedido (
     id_evento INT NOT NULL UNIQUE,
     total DECIMAL(10, 2) NOT NULL,
     pagado BOOLEAN DEFAULT FALSE,
-    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_cliente) REFERENCES Usuarios(id),
+    FOREIGN KEY (id_evento) REFERENCES Evento(id)
 );
 
 
@@ -57,7 +62,10 @@ CREATE TABLE Ticket (
     id_evento INT NOT NULL UNIQUE,
     qr VARCHAR(255) NOT NULL UNIQUE,
     estado ENUM('activo', 'usado', 'cancelado') DEFAULT 'activo',
-    fecha_emision TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_emision TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_cliente) REFERENCES Usuarios(id),
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id),
+    FOREIGN KEY (id_evento) REFERENCES Evento(id)
 );
 
 
@@ -67,17 +75,24 @@ CREATE TABLE Descuento (
     id_pedido INT NOT NULL UNIQUE,
     id_evento INT NOT NULL UNIQUE,
     codigo VARCHAR(50) NOT NULL UNIQUE,
-    porcentaje INT(3) NOT NULL,
+    porcentaje INT NOT NULL,
     tiempo_expiracion DATETIME NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_cliente) REFERENCES Usuarios(id),
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id),
+    FOREIGN KEY (id_evento) REFERENCES Evento(id)
 );
+
 
 CREATE TABLE Estadisticas (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    id_evento INT NOT NULL,
     entradas_disponibles INT NOT NULL,
     entradas_vendidas INT NOT NULL,
-    ocupacion INT NOT NULL,
+    ocupacion INT DEFAULT NULL,
     ingresos DECIMAL(10, 2) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_evento) REFERENCES Evento(id)
 );
+
 
