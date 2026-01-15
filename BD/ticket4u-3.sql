@@ -72,3 +72,12 @@ CREATE TABLE Descuento (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE Estadisticas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    entradas_disponibles INT NOT NULL,
+    entradas_vendidas INT NOT NULL,
+    ocupacion INT NOT NULL,
+    ingresos DECIMAL(10, 2) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
