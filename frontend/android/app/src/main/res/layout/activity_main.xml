@@ -14,22 +14,60 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- TOOLBAR -->
-        <com.google.android.material.appbar.AppBarLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:layout_height="?attr/actionBarSize"
+            android:background="#673AB7"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="#673AB7"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tickets4U"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_gravity="start" />
 
-        </com.google.android.material.appbar.AppBarLayout>
+        <!-- CONTENEDOR ICONOS DERECHA -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_gravity="end|center_vertical">  <!-- ← CLAVE: end -->
 
-        <!-- CONTENIDO (ScrollView con RecyclerViews) -->
+                <!-- CARRITO -->
+                <ImageView
+                    android:id="@+id/toolbar_cart"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:src="@drawable/ic_cart"
+                    app:tint="@android:color/white"
+                    android:padding="4dp" />
+
+                <!-- PERFIL EXTREMO DERECHA -->
+                <ImageView
+                    android:id="@+id/toolbar_profile"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@android:color/white"
+                    android:padding="4dp" />
+
+            </LinearLayout>
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <!-- CONTENIDO (ScrollView con RecyclerViews) - SIN CAMBIOS -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -71,7 +109,8 @@
                     android:gravity="center_vertical"
                     android:layout_marginTop="8dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp">
+                    android:layout_marginEnd="16dp"
+                    tools:ignore="ExtraText">
 
                     <TextView
                         android:layout_width="0dp"
@@ -84,14 +123,15 @@
 
                     <ImageView
                         android:id="@+id/arrow_eventos_actuales"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/ic_media_next"
-                        android:padding="8dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_arrow_forward"
+                        app:tint="#1A1A1A"
+                        android:padding="4dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Ver más eventos actuales" />
+                        android:contentDescription="" />
                 </LinearLayout>
 
                 <!-- Lista horizontal eventos actuales -->
@@ -108,34 +148,35 @@
 
                 <!-- Título + flecha EVENTOS INTERNACIONALES -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp">
+                    android:layout_weight="1"
+                    android:text="Eventos internacionales"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Eventos internacionales"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#1A1A1A" />
-
-                    <ImageView
-                        android:id="@+id/arrow_eventos_internacionales"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/ic_media_next"
-                        android:padding="8dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Ver más eventos internacionales" />
-                </LinearLayout>
+                <ImageView
+                    android:id="@+id/arrow_eventos_internacionales"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_arrow_forward"
+                    app:tint="#1A1A1A"
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Ver más eventos internacionales" />
+            </LinearLayout>
 
                 <!-- LISTA HORIZONTAL EVENTOS INTERNACIONALES -->
                 <androidx.recyclerview.widget.RecyclerView

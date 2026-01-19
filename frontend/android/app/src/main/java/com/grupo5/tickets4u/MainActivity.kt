@@ -2,8 +2,8 @@ package com.grupo5.tickets4u
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.app.ActionBarDrawerToggle
 import android.widget.ImageView
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -15,6 +15,8 @@ import com.google.android.material.navigation.NavigationView
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
+    // Hacemos el toggle una variable de la clase para poder acceder a él
+    private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var internacionalesRecycler: RecyclerView
     private lateinit var actualesRecycler: RecyclerView
 
@@ -22,44 +24,51 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // TOOLBAR
+        // --- TOOLBAR Y TÍTULO ---
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        // Ocultamos el título por defecto de la ActionBar para usar el nuestro del XML.
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // DRAWER
+        // --- DRAWER Y MENÚ HAMBURGUESA ---
         drawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-        navView.setNavigationItemSelectedListener { item: MenuItem ->
-            drawerLayout.closeDrawer(GravityCompat.START)
-            true
-        }
 
-        val toggle = ActionBarDrawerToggle(
+        // Creamos el toggle (icono hamburguesa) y lo vinculamos a todo.
+        toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
 
-        // 1. Eventos destacados (3, vertical)
+        // ¡NUEVO! Cambiamos el color del icono de la hamburguesa a blanco.
+        toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
+
+        navView.setNavigationItemSelectedListener { item: MenuItem ->
+            drawerLayout.closeDrawer(GravityCompat.START)
+            // Aquí iría la lógica para navegar según el item pulsado.
+            true
+        }
+
+        // --- CONFIGURACIÓN DE RECYCLERVIEWS (sin cambios) ---
+        // 1. Eventos destacados (vertical)
         val destacadosRecycler = findViewById<RecyclerView>(R.id.eventos_recyclerview)
         destacadosRecycler.layoutManager = LinearLayoutManager(this)
         destacadosRecycler.adapter = EventAdapter(createFeaturedEvents())
 
-        // 2. Eventos actuales (4 artistas urbanos, horizontal)
+        // 2. Eventos actuales (horizontal)
         actualesRecycler = findViewById(R.id.eventos_actuales_recyclerview)
         actualesRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         actualesRecycler.adapter = EventAdapter(createCurrentEvents())
 
-        // 3. Eventos internacionales (horizontal, como los actuales)
+        // 3. Eventos internacionales (horizontal)
         internacionalesRecycler = findViewById(R.id.mas_eventos_recyclerview)
         internacionalesRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         internacionalesRecycler.adapter = EventAdapter(createInternationalEvents())
 
-        // FLECHAS (comentar hasta que el XML tenga los IDs)
-
+        // --- CLICS DE FLECHAS E ICONOS (sin cambios) ---
         findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener {
             actualesRecycler.smoothScrollBy(400, 0)
         }
@@ -68,11 +77,24 @@ class MainActivity : AppCompatActivity() {
             internacionalesRecycler.smoothScrollBy(400, 0)
         }
 
-
+        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
+            // TODO: Ir a pantalla carrito después
+        }
+        findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
+            // TODO: Ir a pantalla perfil o abrir menú
+        }
     }
 
+    // Es necesario sobreescribir este método para que el toggle se sincronice correctamente
+    // al iniciar y al rotar la pantalla.
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        toggle.syncState()
+    }
 
-    // 3 eventos destacados (los 3 en tendencia)
+    // --- MÉTODOS PARA CREAR DATOS DE EJEMPLO (sin cambios) ---
+    // (Aquí van tus funciones createFeaturedEvents, createCurrentEvents, etc. No cambian)
+
     private fun createFeaturedEvents(): List<Event> =
         listOf(
             Event(
@@ -101,7 +123,6 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-    // 4 eventos actuales (solo ANUEL en tendencia)
     private fun createCurrentEvents(): List<Event> =
         listOf(
             Event(
@@ -134,8 +155,6 @@ class MainActivity : AppCompatActivity() {
                 imageResId = R.drawable.maluma
             )
         )
-
-    // 4 eventos internacionales (Bruno y The Weeknd en tendencia)
     private fun createInternationalEvents(): List<Event> =
         listOf(
             Event(
@@ -148,7 +167,7 @@ class MainActivity : AppCompatActivity() {
             ),
             Event(
                 id = 202,
-                name = "The Weeknd – After Hours Til Dawn",
+                name = "The Weekend – After Hours Til Dawn",
                 location = "Accor Arena · París",
                 date = "18 Ago 2026 · 21:00",
                 imageResId = R.drawable.the_weekend,
