@@ -43,15 +43,16 @@ class MainActivity : AppCompatActivity() {
         // LISTENER ACTUALIZADO (SIN nav_perfil)
         navView.setNavigationItemSelectedListener { item: MenuItem ->
             when(item.itemId) {
-                R.id.nav_home -> Toast.makeText(this, "Inicio", Toast.LENGTH_SHORT).show()
-                R.id.nav_eventos -> Toast.makeText(this, "Mis Eventos", Toast.LENGTH_SHORT).show()
-                R.id.nav_tickets -> Toast.makeText(this, "Mis Tickets", Toast.LENGTH_SHORT).show()
-                R.id.nav_ajustes -> Toast.makeText(this, "Ajustes", Toast.LENGTH_SHORT).show()
-                R.id.nav_acerca -> Toast.makeText(this, "Acerca de", Toast.LENGTH_SHORT).show()
+                R.id.nav_home -> { }
+                R.id.nav_tickets -> { }
+                R.id.nav_settings -> { }
+                R.id.nav_help -> { }
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
+
+
 
         // --- CONFIGURACIÓN DE RECYCLERVIEWS ---
         val destacadosRecycler = findViewById<RecyclerView>(R.id.eventos_recyclerview)
