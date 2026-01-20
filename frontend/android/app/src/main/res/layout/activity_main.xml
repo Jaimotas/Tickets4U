@@ -31,13 +31,13 @@
                 android:textStyle="bold"
                 android:layout_gravity="start" />
 
-        <!-- CONTENEDOR ICONOS DERECHA -->
+            <!-- CONTENEDOR ICONOS DERECHA -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_gravity="end|center_vertical">  <!-- ← CLAVE: end -->
+                android:layout_gravity="end|center_vertical">
 
                 <!-- CARRITO -->
                 <ImageView
@@ -62,12 +62,11 @@
                     android:src="@drawable/ic_profile"
                     app:tint="@android:color/white"
                     android:padding="4dp" />
-
             </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- CONTENIDO (ScrollView con RecyclerViews) - SIN CAMBIOS -->
+        <!-- CONTENIDO (ScrollView con RecyclerViews) -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -148,35 +147,35 @@
 
                 <!-- Título + flecha EVENTOS INTERNACIONALES -->
                 <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Eventos internacionales"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp">
 
-                <ImageView
-                    android:id="@+id/arrow_eventos_internacionales"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:src="@drawable/ic_arrow_forward"
-                    app:tint="#1A1A1A"
-                    android:padding="4dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Ver más eventos internacionales" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Eventos internacionales"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A1A" />
+
+                    <ImageView
+                        android:id="@+id/arrow_eventos_internacionales"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_arrow_forward"
+                        app:tint="#1A1A1A"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Ver más eventos internacionales" />
+                </LinearLayout>
 
                 <!-- LISTA HORIZONTAL EVENTOS INTERNACIONALES -->
                 <androidx.recyclerview.widget.RecyclerView
@@ -189,7 +188,6 @@
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/event_item" />
-
             </LinearLayout>
         </ScrollView>
 
@@ -201,6 +199,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true" />
+        android:fitsSystemWindows="true"
+        app:menu="@menu/activity_main_drawer" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

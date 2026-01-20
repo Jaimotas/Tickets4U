@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Inicio" />
+
+        <item
+            android:id="@+id/nav_eventos"
+            android:icon="@drawable/ic_event"
+            android:title="Mis Eventos" />
+
+        <item
+            android:id="@+id/nav_tickets"
+            android:icon="@drawable/ic_confirmation_number"
+            android:title="Mis Tickets" />
+
+    </group>
+
+    <item android:title="Más">
+        <menu>
+            <item
+                android:id="@+id/nav_ajustes"
+                android:icon="@drawable/ic_settings"
+                android:title="Ajustes" />
+
+            <item
+                android:id="@+id/nav_acerca"
+                android:icon="@drawable/ic_help"
+                android:title="Acerca de" />
+        </menu>
+    </item>
+</menu>

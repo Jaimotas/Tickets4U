@@ -3,6 +3,7 @@ package com.grupo5.tickets4u
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,7 +16,6 @@ import com.google.android.material.navigation.NavigationView
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
-    // Hacemos el toggle una variable de la clase para poder acceder a él
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var internacionalesRecycler: RecyclerView
     private lateinit var actualesRecycler: RecyclerView
@@ -27,48 +27,48 @@ class MainActivity : AppCompatActivity() {
         // --- TOOLBAR Y TÍTULO ---
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        // Ocultamos el título por defecto de la ActionBar para usar el nuestro del XML.
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         // --- DRAWER Y MENÚ HAMBURGUESA ---
         drawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
-        // Creamos el toggle (icono hamburguesa) y lo vinculamos a todo.
         toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
-
-        // ¡NUEVO! Cambiamos el color del icono de la hamburguesa a blanco.
         toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
 
+        // LISTENER ACTUALIZADO (SIN nav_perfil)
         navView.setNavigationItemSelectedListener { item: MenuItem ->
+            when(item.itemId) {
+                R.id.nav_home -> Toast.makeText(this, "Inicio", Toast.LENGTH_SHORT).show()
+                R.id.nav_eventos -> Toast.makeText(this, "Mis Eventos", Toast.LENGTH_SHORT).show()
+                R.id.nav_tickets -> Toast.makeText(this, "Mis Tickets", Toast.LENGTH_SHORT).show()
+                R.id.nav_ajustes -> Toast.makeText(this, "Ajustes", Toast.LENGTH_SHORT).show()
+                R.id.nav_acerca -> Toast.makeText(this, "Acerca de", Toast.LENGTH_SHORT).show()
+            }
             drawerLayout.closeDrawer(GravityCompat.START)
-            // Aquí iría la lógica para navegar según el item pulsado.
             true
         }
 
-        // --- CONFIGURACIÓN DE RECYCLERVIEWS (sin cambios) ---
-        // 1. Eventos destacados (vertical)
+        // --- CONFIGURACIÓN DE RECYCLERVIEWS ---
         val destacadosRecycler = findViewById<RecyclerView>(R.id.eventos_recyclerview)
         destacadosRecycler.layoutManager = LinearLayoutManager(this)
         destacadosRecycler.adapter = EventAdapter(createFeaturedEvents())
 
-        // 2. Eventos actuales (horizontal)
         actualesRecycler = findViewById(R.id.eventos_actuales_recyclerview)
         actualesRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         actualesRecycler.adapter = EventAdapter(createCurrentEvents())
 
-        // 3. Eventos internacionales (horizontal)
         internacionalesRecycler = findViewById(R.id.mas_eventos_recyclerview)
         internacionalesRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         internacionalesRecycler.adapter = EventAdapter(createInternationalEvents())
 
-        // --- CLICS DE FLECHAS E ICONOS (sin cambios) ---
+        // --- CLICS DE FLECHAS E ICONOS ---
         findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener {
             actualesRecycler.smoothScrollBy(400, 0)
         }
@@ -85,16 +85,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Es necesario sobreescribir este método para que el toggle se sincronice correctamente
-    // al iniciar y al rotar la pantalla.
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
     }
 
-    // --- MÉTODOS PARA CREAR DATOS DE EJEMPLO (sin cambios) ---
-    // (Aquí van tus funciones createFeaturedEvents, createCurrentEvents, etc. No cambian)
-
+    // --- MÉTODOS PARA CREAR DATOS DE EJEMPLO (EXACTAMENTE IGUAL) ---
     private fun createFeaturedEvents(): List<Event> =
         listOf(
             Event(
@@ -155,6 +151,7 @@ class MainActivity : AppCompatActivity() {
                 imageResId = R.drawable.maluma
             )
         )
+
     private fun createInternationalEvents(): List<Event> =
         listOf(
             Event(
