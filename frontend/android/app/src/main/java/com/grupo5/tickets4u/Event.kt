@@ -1,11 +1,12 @@
 package com.grupo5.tickets4u
 
+import com.google.gson.annotations.SerializedName
+
 data class Event(
     val id: Int,
-    val name: String,
-    val location: String,
-    val date: String,
-    val imageResId: Int,
-    val isTrending: Boolean = false   // NUEVO
+    @SerializedName("nombre") val name: String,
+    @SerializedName("ubicacion") val location: String,
+    @SerializedName("ciudad") val city: String,
+    @SerializedName("fechaInicio") val date: String,
+    @SerializedName("foto") val imageUrl: String
 )
-

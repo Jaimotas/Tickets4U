@@ -1,191 +1,111 @@
 package com.grupo5.tickets4u
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
-    // Hacemos el toggle una variable de la clase para poder acceder a él
     private lateinit var toggle: ActionBarDrawerToggle
-    private lateinit var internacionalesRecycler: RecyclerView
+
+    // Recyclers
+    private lateinit var destacadosRecycler: RecyclerView
     private lateinit var actualesRecycler: RecyclerView
+    private lateinit var internacionalesRecycler: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // --- TOOLBAR Y TÍTULO ---
+        setupToolbarAndDrawer()
+        setupRecyclerViews()
+
+        // Llamada al backend
+        fetchEventos()
+    }
+
+    private fun setupToolbarAndDrawer() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        // Ocultamos el título por defecto de la ActionBar para usar el nuestro del XML.
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // --- DRAWER Y MENÚ HAMBURGUESA ---
         drawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
-        // Creamos el toggle (icono hamburguesa) y lo vinculamos a todo.
         toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
-
-        // ¡NUEVO! Cambiamos el color del icono de la hamburguesa a blanco.
         toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
 
         navView.setNavigationItemSelectedListener { item: MenuItem ->
             drawerLayout.closeDrawer(GravityCompat.START)
-            // Aquí iría la lógica para navegar según el item pulsado.
             true
         }
 
-        // --- CONFIGURACIÓN DE RECYCLERVIEWS (sin cambios) ---
-        // 1. Eventos destacados (vertical)
-        val destacadosRecycler = findViewById<RecyclerView>(R.id.eventos_recyclerview)
-        destacadosRecycler.layoutManager = LinearLayoutManager(this)
-        destacadosRecycler.adapter = EventAdapter(createFeaturedEvents())
-
-        // 2. Eventos actuales (horizontal)
-        actualesRecycler = findViewById(R.id.eventos_actuales_recyclerview)
-        actualesRecycler.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        actualesRecycler.adapter = EventAdapter(createCurrentEvents())
-
-        // 3. Eventos internacionales (horizontal)
-        internacionalesRecycler = findViewById(R.id.mas_eventos_recyclerview)
-        internacionalesRecycler.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        internacionalesRecycler.adapter = EventAdapter(createInternationalEvents())
-
-        // --- CLICS DE FLECHAS E ICONOS (sin cambios) ---
+        // Flechas de scroll manual
         findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener {
-            actualesRecycler.smoothScrollBy(400, 0)
+            actualesRecycler.smoothScrollBy(500, 0)
         }
-
         findViewById<ImageView>(R.id.arrow_eventos_internacionales).setOnClickListener {
-            internacionalesRecycler.smoothScrollBy(400, 0)
-        }
-
-        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
-            // TODO: Ir a pantalla carrito después
-        }
-        findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
-            // TODO: Ir a pantalla perfil o abrir menú
+            internacionalesRecycler.smoothScrollBy(500, 0)
         }
     }
 
-    // Es necesario sobreescribir este método para que el toggle se sincronice correctamente
-    // al iniciar y al rotar la pantalla.
+    private fun setupRecyclerViews() {
+        destacadosRecycler = findViewById(R.id.eventos_recyclerview)
+        destacadosRecycler.layoutManager = LinearLayoutManager(this)
+
+        actualesRecycler = findViewById(R.id.eventos_actuales_recyclerview)
+        actualesRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        internacionalesRecycler = findViewById(R.id.mas_eventos_recyclerview)
+        internacionalesRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+    }
+
+    private fun fetchEventos() {
+        // Ejecutamos en segundo plano
+        lifecycleScope.launch {
+            try {
+                val listaEventos = RetrofitClient.instance.getEventos()
+
+                if (listaEventos.isNotEmpty()) {
+                    // 1. Destacados (ej. los primeros 3)
+                    destacadosRecycler.adapter = EventAdapter(listaEventos.take(3))
+
+                    // 2. Actuales (ej. los que son en Madrid)
+                    val locales = listaEventos.filter { it.location.contains("Madrid", ignoreCase = true) }
+                    actualesRecycler.adapter = EventAdapter(locales)
+
+                    // 3. Internacionales (ej. los que NO son en Madrid)
+                    val internacionales = listaEventos.filter { !it.location.contains("Madrid", ignoreCase = true) }
+                    internacionalesRecycler.adapter = EventAdapter(internacionales)
+                }
+
+            } catch (e: Exception) {
+                Log.e("API_ERROR", "Error al cargar eventos: ${e.message}")
+                Toast.makeText(this@MainActivity, "Error de conexión con el servidor", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
     }
-
-    // --- MÉTODOS PARA CREAR DATOS DE EJEMPLO (sin cambios) ---
-    // (Aquí van tus funciones createFeaturedEvents, createCurrentEvents, etc. No cambian)
-
-    private fun createFeaturedEvents(): List<Event> =
-        listOf(
-            Event(
-                id = 1,
-                name = "Concierto Estopa",
-                location = "WiZink Center · Madrid",
-                date = "10 Mar 2026 · 21:00",
-                imageResId = R.drawable.estopa,
-                isTrending = true
-            ),
-            Event(
-                id = 2,
-                name = "Mad Cool Festival",
-                location = "IFEMA · Madrid",
-                date = "15 Jul 2026 · 18:00",
-                imageResId = R.drawable.madcool,
-                isTrending = true
-            ),
-            Event(
-                id = 3,
-                name = "La Brama del Cèrvol",
-                location = "Teatro Principal · Barcelona",
-                date = "20 Feb 2026 · 20:00",
-                imageResId = R.drawable.la_brama_del_cervol,
-                isTrending = true
-            )
-        )
-
-    private fun createCurrentEvents(): List<Event> =
-        listOf(
-            Event(
-                id = 101,
-                name = "Anuel AA – Las Leyendas Nunca Mueren Tour",
-                location = "Palacio Vistalegre · Madrid",
-                date = "05 Abr 2026 · 21:00",
-                imageResId = R.drawable.anuel,
-                isTrending = true
-            ),
-            Event(
-                id = 102,
-                name = "Eladio Carrión – DON KBRON ",
-                location = "WiZink Center · Madrid",
-                date = "28 Enero 2026 · 21:30",
-                imageResId = R.drawable.eladio
-            ),
-            Event(
-                id = 103,
-                name = "DEIV – Tour Europa",
-                location = "La Riviera · Madrid",
-                date = "12 May 2026 · 20:30",
-                imageResId = R.drawable.deiv
-            ),
-            Event(
-                id = 104,
-                name = "Maluma – La Vida es Una Tour",
-                location = "Palau Sant Jordi · Barcelona",
-                date = "25 May 2026 · 21:00",
-                imageResId = R.drawable.maluma
-            )
-        )
-    private fun createInternationalEvents(): List<Event> =
-        listOf(
-            Event(
-                id = 201,
-                name = "Bruno Mars – World Tour",
-                location = "Wembley Stadium · Londres",
-                date = "10 Ago 2026 · 20:00",
-                imageResId = R.drawable.bruno,
-                isTrending = true
-            ),
-            Event(
-                id = 202,
-                name = "The Weekend – After Hours Til Dawn",
-                location = "Accor Arena · París",
-                date = "18 Ago 2026 · 21:00",
-                imageResId = R.drawable.the_weekend,
-                isTrending = true
-            ),
-            Event(
-                id = 203,
-                name = "Coldplay – Music of the Spheres",
-                location = "Allianz Parque · São Paulo",
-                date = "05 Sep 2026 · 20:30",
-                imageResId = R.drawable.coldplay
-            ),
-            Event(
-                id = 204,
-                name = "Dua Lipa – Future Nostalgia Tour",
-                location = "Madison Square Garden · Nueva York",
-                date = "20 Sep 2026 · 21:00",
-                imageResId = R.drawable.dua_lipa
-            )
-        )
 }
