@@ -26,17 +26,19 @@ class PaginaCompraActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed() // Vuelve a la pantalla anterior
         }
 
-        // 3. Recibir datos dinámicos
-        val titulo = intent.getStringExtra("TITULO") ?: "Evento"
-        val fecha = intent.getStringExtra("FECHA")
-        val lugar = intent.getStringExtra("LUGAR")
-        val imagenRes = intent.getIntExtra("IMAGEN_RES", 0)
+        // 3. RECIBIR DATOS del EventAdapter ✅ (claves actualizadas)
+        val titulo = intent.getStringExtra("EVENTO_NOMBRE") ?: "Evento"
+        val fecha = intent.getStringExtra("EVENTO_FECHA")
+        val lugar = intent.getStringExtra("EVENTO_UBICACION")
+        val imagenRes = intent.getIntExtra("EVENTO_IMAGEN", 0)
 
         // 4. Asignar datos a la UI
         tvTitulo.text = titulo
         tvFecha.text = fecha
         tvLugar.text = lugar
-        ivImagen.setImageResource(imagenRes)
+        if (imagenRes != 0) {
+            ivImagen.setImageResource(imagenRes)
+        }
 
         // 5. Configurar el Selector Moderno (1 a 8)
         val opciones = arrayOf("1 entrada", "2 entradas", "3 entradas", "4 entradas", "5 entradas", "6 entradas", "7 entradas", "8 entradas")

@@ -1,5 +1,7 @@
 package com.grupo5.tickets4u
 
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-
 
 class EventAdapter(private val events: List<Event>) :
     RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
@@ -42,11 +43,16 @@ class EventAdapter(private val events: List<Event>) :
             holder.trendingBadge.visibility = View.GONE
         }
 
+        // ✅ CLICK → PAGINA COMPRA (reemplaza el TODO)
         holder.itemView.setOnClickListener {
-            // TODO: Ir a pantalla de detalle del evento
-            // Click funciona pero NO sale nada visible
+            val context = holder.itemView.context
+            val intent = Intent(context, PaginaCompraActivity::class.java)
+            intent.putExtra("EVENTO_ID", event.id)
+            intent.putExtra("EVENTO_NOMBRE", event.name)
+            intent.putExtra("EVENTO_UBICACION", event.location)
+            intent.putExtra("EVENTO_FECHA", event.date)
+            intent.putExtra("EVENTO_IMAGEN", event.imageResId)
+            context.startActivity(intent)
         }
-
     }
-    }
-
+}

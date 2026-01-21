@@ -27,6 +27,10 @@
             android:name=".eventos.ui.payment.PaymentSuccessActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
+        <activity
+            android:name=".eventos.ui.payment.PaymentLoadingActivity"
+            android:exported="false" />
+
 
 
         <activity
@@ -34,7 +38,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".PaginaCompraActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,7 +47,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".PaginaCompraActivity"
             android:exported="false" />
 
     </application>

@@ -4,6 +4,7 @@ import android.view.WindowManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +30,12 @@ class CartActivity : AppCompatActivity() {
         )
 
         setContentView(R.layout.activity_cart)
+
+        // ✅ FLECHA ATRÁS
+        val btnAtras = findViewById<ImageButton>(R.id.btnAtras)
+        btnAtras.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
         val rvCart = findViewById<RecyclerView>(R.id.rvCart)
         val txtTotal = findViewById<TextView>(R.id.txtTotal)
