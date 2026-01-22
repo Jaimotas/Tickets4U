@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.grupo5.tickets4u"
+    namespace = "com.example.tickets4u"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.grupo5.tickets4u"
+        applicationId = "com.example.tickets4u"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
