@@ -28,11 +28,18 @@ public class Evento {
     private Integer aforo;
     private String foto;
     
+    @Enumerated(EnumType.STRING)
+    private Categoria categoria;
+    
+    public enum Categoria {
+        ACTUAL, DESTACADO, INTERNACIONAL
+    }
+    
     public Evento() {}
     
     public Evento(String nombre, String descripcion, LocalDateTime fechaInicio, 
                   LocalDateTime fechaFin, String ciudad, String ubicacion, 
-                  String direccion, Integer aforo, String foto) {
+                  String direccion, Integer aforo, String foto, Categoria categoria) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.fechaInicio = fechaInicio;
@@ -42,6 +49,7 @@ public class Evento {
         this.direccion = direccion;
         this.aforo = aforo;
         this.foto = foto;
+        this.categoria = categoria;
     }
     
     // Getters y Setters
@@ -77,4 +85,7 @@ public class Evento {
     
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
+    
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 }
