@@ -3,6 +3,7 @@ package com.grupo5.tickets4u
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.grupo5.tickets4u.ui.cart.CartActivity
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -41,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
 
-        // LISTENER DRAWER CON CARRITO ✅
+        // LISTENER DRAWER
         navView.setNavigationItemSelectedListener { item: MenuItem ->
             when(item.itemId) {
                 R.id.nav_home -> { }
@@ -53,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // --- CONFIGURACIÓN DE RECYCLERVIEWS (TO' LO QUE TE DI ANTES) ---
+        // --- CONFIGURACIÓN DE RECYCLERVIEWS ---
         val destacadosRecycler = findViewById<RecyclerView>(R.id.eventos_recyclerview)
         destacadosRecycler.layoutManager = LinearLayoutManager(this)
         destacadosRecycler.adapter = EventAdapter(createFeaturedEvents())
@@ -66,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         internacionalesRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         internacionalesRecycler.adapter = EventAdapter(createInternationalEvents())
 
-        // --- CLICS DE FLECHAS E ICONOS (TOOLBAR CARRITO ✅) ---
+        // --- CLICS DE FLECHAS E ICONOS ---
         findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener {
             actualesRecycler.smoothScrollBy(400, 0)
         }
@@ -75,13 +77,20 @@ class MainActivity : AppCompatActivity() {
             internacionalesRecycler.smoothScrollBy(400, 0)
         }
 
-        // CARRITO DESDE TOOLBAR ICONO ✅
+        // CARRITO DESDE TOOLBAR ✅
         findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
         findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
             // TODO: Ir a pantalla perfil o abrir menú
+        }
+
+        // ✅ GESTIÓN EVENTOS (al lado de "Eventos Destacados")
+        findViewById<ImageButton>(R.id.btn_gestion_eventos).setOnClickListener {
+            Toast.makeText(this, "🔧 Gestión eventos (CRUD próximamente)", Toast.LENGTH_SHORT).show()
+            // TODO: Cuando tengas CRUD listo:
+            // startActivity(Intent(this, GestionEventosActivity::class.java))
         }
     }
 
@@ -90,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
     }
 
-    // --- MÉTODOS PARA DATOS DE EJEMPLO (EXACTOS COMO ANTES) ---
+    // --- MÉTODOS PARA DATOS DE EJEMPLO ---
     private fun createFeaturedEvents(): List<Event> =
         listOf(
             Event(id = 1, name = "Concierto Estopa", location = "WiZink Center · Madrid", date = "10 Mar 2026 · 21:00", imageResId = R.drawable.estopa, isTrending = true),

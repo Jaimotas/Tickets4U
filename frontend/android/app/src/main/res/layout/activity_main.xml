@@ -51,9 +51,6 @@
                     app:tint="@android:color/white"
                     android:padding="4dp" />
 
-
-
-
                 <!-- PERFIL EXTREMO DERECHA -->
                 <ImageView
                     android:id="@+id/toolbar_profile"
@@ -81,17 +78,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <!-- Título eventos destacados -->
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- ✅ Título eventos destacados + ICONO GESTIÓN -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Eventos Destacados"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A1A1A"
+                    android:orientation="horizontal"
                     android:layout_marginTop="16dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginEnd="16dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Eventos Destacados"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A1A"
+                        android:layout_marginEnd="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/btn_gestion_eventos"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_edit"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:scaleType="centerInside"
+                        android:contentDescription="Editar eventos"
+                        app:tint="#1A1A1A" />
+
+
+
+                </LinearLayout>
 
                 <!-- Lista destacados -->
                 <androidx.recyclerview.widget.RecyclerView
