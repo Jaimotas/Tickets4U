@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
-import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -18,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
+import com.grupo5.tickets4u.ui.cart.CartActivity
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -35,16 +35,18 @@ class MainActivity : AppCompatActivity() {
 
         setupToolbarAndDrawer()
         setupRecyclerViews()
-        fetchEventos()
+        fetchEventos() // <--- Prioridad: Carga desde Backend
 
-        // Configuración del botón al final del scroll para crear eventos
-        val btnCrear: Button = findViewById(R.id.btnAbrirFormulario)
-        btnCrear.setOnClickListener {
-            val dialog = CrearEventoDialogFragment(onEventoCreado = {
-                // Recarga automática al crear el evento
-                fetchEventos()
-            })
+        // Configuración botón crear (CRUD)
+        findViewById<Button>(R.id.btnAbrirFormulario).setOnClickListener {
+            // Asumiendo que CrearEventoDialogFragment ya usa Retrofit para el POST
+            val dialog = CrearEventoDialogFragment(onEventoCreado = { fetchEventos() })
             dialog.show(supportFragmentManager, "CrearEventoDialog")
+        }
+
+        // Configuración Gestión/Admin
+        findViewById<ImageButton>(R.id.btn_gestion_eventos).setOnClickListener {
+            Toast.makeText(this, "🔧 Panel de Administración", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -56,26 +58,26 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
-        toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
+        toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toggle)
         toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
 
         navView.setNavigationItemSelectedListener { item: MenuItem ->
             when(item.itemId) {
-                R.id.nav_home -> { fetchEventos() }
+                R.id.nav_home -> fetchEventos()
+                // Añadir otros destinos aquí
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener {
-            actualesRecycler.smoothScrollBy(500, 0)
-        }
-        findViewById<ImageView>(R.id.arrow_eventos_internacionales).setOnClickListener {
-            internacionalesRecycler.smoothScrollBy(500, 0)
+        // Flechas de navegación horizontal
+        findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener { actualesRecycler.smoothScrollBy(500, 0) }
+        findViewById<ImageView>(R.id.arrow_eventos_internacionales).setOnClickListener { internacionalesRecycler.smoothScrollBy(500, 0) }
+
+        // Carrito
+        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
+            startActivity(Intent(this, CartActivity::class.java))
         }
     }
 
@@ -93,6 +95,7 @@ class MainActivity : AppCompatActivity() {
     private fun fetchEventos() {
         lifecycleScope.launch {
             try {
+                // Llamada a la interfaz de Retrofit
                 val listaEventos = RetrofitClient.instance.getEventos()
 
                 if (listaEventos.isNotEmpty()) {
@@ -102,75 +105,8 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("API_ERROR", "Error: ${e.message}")
-                Toast.makeText(this@MainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Error de conexión al servidor", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-        // --- TOOLBAR Y TÍTULO ---
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-
-        // --- DRAWER Y MENÚ HAMBURGUESA ---
-        drawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-
-        toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
-
-        // LISTENER DRAWER
-        navView.setNavigationItemSelectedListener { item: MenuItem ->
-            when(item.itemId) {
-                R.id.nav_home -> { }
-                R.id.nav_tickets -> { }
-                R.id.nav_settings -> { }
-                R.id.nav_help -> { }
-            }
-            drawerLayout.closeDrawer(GravityCompat.START)
-            true
-        }
-
-        // --- CONFIGURACIÓN DE RECYCLERVIEWS ---
-        val destacadosRecycler = findViewById<RecyclerView>(R.id.eventos_recyclerview)
-        destacadosRecycler.layoutManager = LinearLayoutManager(this)
-        destacadosRecycler.adapter = EventAdapter(createFeaturedEvents())
-
-        actualesRecycler = findViewById(R.id.eventos_actuales_recyclerview)
-        actualesRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        actualesRecycler.adapter = EventAdapter(createCurrentEvents())
-
-        internacionalesRecycler = findViewById(R.id.mas_eventos_recyclerview)
-        internacionalesRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        internacionalesRecycler.adapter = EventAdapter(createInternationalEvents())
-
-        // --- CLICS DE FLECHAS E ICONOS ---
-        findViewById<ImageView>(R.id.arrow_eventos_actuales).setOnClickListener {
-            actualesRecycler.smoothScrollBy(400, 0)
-        }
-
-        findViewById<ImageView>(R.id.arrow_eventos_internacionales).setOnClickListener {
-            internacionalesRecycler.smoothScrollBy(400, 0)
-        }
-
-        // CARRITO DESDE TOOLBAR ✅
-        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
-            startActivity(Intent(this, CartActivity::class.java))
-        }
-
-        findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
-            // TODO: Ir a pantalla perfil o abrir menú
-        }
-
-        // ✅ GESTIÓN EVENTOS (al lado de "Eventos Destacados")
-        findViewById<ImageButton>(R.id.btn_gestion_eventos).setOnClickListener {
-            Toast.makeText(this, "🔧 Gestión eventos (CRUD próximamente)", Toast.LENGTH_SHORT).show()
-            // TODO: Cuando tengas CRUD listo:
-            // startActivity(Intent(this, GestionEventosActivity::class.java))
         }
     }
 

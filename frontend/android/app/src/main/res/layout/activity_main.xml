@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -8,7 +9,6 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <!-- CONTENIDO PRINCIPAL -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,7 +31,6 @@
                 android:textStyle="bold"
                 android:layout_gravity="start" />
 
-            <!-- CONTENEDOR ICONOS DERECHA -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -39,9 +38,6 @@
                 android:gravity="center_vertical"
                 android:layout_gravity="end">
 
-                android:layout_gravity="end|center_vertical">
-
-                <!-- CARRITO -->
                 <ImageView
                     android:id="@+id/toolbar_cart"
                     android:layout_width="40dp"
@@ -53,7 +49,6 @@
                     app:tint="@android:color/white"
                     android:padding="4dp" />
 
-                <!-- PERFIL EXTREMO DERECHA -->
                 <ImageView
                     android:id="@+id/toolbar_profile"
                     android:layout_width="40dp"
@@ -67,10 +62,6 @@
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
 
-
-        </androidx.appcompat.widget.Toolbar>
-
-        <!-- CONTENIDO (ScrollView con RecyclerViews) -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -80,18 +71,9 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingBottom="24dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Eventos Destacados"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginStart="16dp" />
-
-                <!-- ✅ Título eventos destacados + ICONO GESTIÓN -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -108,8 +90,7 @@
                         android:text="Eventos Destacados"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A1A"
-                        android:layout_marginEnd="8dp" />
+                        android:textColor="#1A1A1A" />
 
                     <ImageButton
                         android:id="@+id/btn_gestion_eventos"
@@ -117,38 +98,27 @@
                         android:layout_height="32dp"
                         android:src="@drawable/ic_edit"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:scaleType="centerInside"
                         android:contentDescription="Editar eventos"
                         app:tint="#1A1A1A" />
-
-
-
                 </LinearLayout>
 
-                <!-- Lista destacados -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/eventos_recyclerview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
-                    android:padding="16dp" />
-
                     android:padding="16dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/event_item" />
 
-                <!-- Título + flecha eventos actuales -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp">
                     android:gravity="center_vertical"
                     android:layout_marginTop="8dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    tools:ignore="ExtraText">
+                    android:layout_marginEnd="16dp">
 
                     <TextView
                         android:layout_width="0dp"
@@ -156,7 +126,6 @@
                         android:layout_weight="1"
                         android:text="Eventos actuales"
                         android:textSize="20sp"
-                        android:textStyle="bold" />
                         android:textStyle="bold"
                         android:textColor="#1A1A1A" />
 
@@ -164,40 +133,27 @@
                         android:id="@+id/arrow_eventos_actuales"
                         android:layout_width="26dp"
                         android:layout_height="26dp"
-                        android:src="@drawable/ic_arrow_forward" />
-                </LinearLayout>
-
                         android:src="@drawable/ic_arrow_forward"
                         app:tint="#1A1A1A"
-                        android:padding="4dp"
-                        android:clickable="true"
-                        android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="" />
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
 
-                <!-- Lista horizontal eventos actuales -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/eventos_actuales_recyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:orientation="horizontal" />
-
-                    android:nestedScrollingEnabled="false"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/event_item" />
 
-                <!-- Título + flecha EVENTOS INTERNACIONALES -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp">
                     android:gravity="center_vertical"
                     android:layout_marginTop="16dp"
                     android:layout_marginStart="16dp"
@@ -209,7 +165,6 @@
                         android:layout_weight="1"
                         android:text="Eventos internacionales"
                         android:textSize="20sp"
-                        android:textStyle="bold" />
                         android:textStyle="bold"
                         android:textColor="#1A1A1A" />
 
@@ -217,24 +172,22 @@
                         android:id="@+id/arrow_eventos_internacionales"
                         android:layout_width="26dp"
                         android:layout_height="26dp"
-                        android:src="@drawable/ic_arrow_forward" />
-                </LinearLayout>
-
                         android:src="@drawable/ic_arrow_forward"
                         app:tint="#1A1A1A"
-                        android:padding="4dp"
-                        android:clickable="true"
-                        android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Ver más eventos internacionales" />
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
 
-                <!-- LISTA HORIZONTAL EVENTOS INTERNACIONALES -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/mas_eventos_recyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:orientation="horizontal" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/event_item" />
 
                 <Button
                     android:id="@+id/btnAbrirFormulario"
@@ -250,18 +203,6 @@
         </ScrollView>
     </LinearLayout>
 
-                    android:nestedScrollingEnabled="false"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/event_item" />
-            </LinearLayout>
-        </ScrollView>
-
-    </LinearLayout>
-
-    <!-- MENU LATERAL (Navigation Drawer) -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="260dp"

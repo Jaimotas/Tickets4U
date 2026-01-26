@@ -9,16 +9,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.grupo5.tickets4u.R
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputLayout
 import com.grupo5.tickets4u.R
-import com.grupo5.tickets4u.eventos.ui.payment.PaymentLoadingActivity
 import java.time.LocalDate
 
 class PaymentActivity : AppCompatActivity() {
@@ -26,9 +21,9 @@ class PaymentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-
         setContentView(R.layout.activity_payment)
 
+        // 1. Referencias de la UI
         val txtTotalPago = findViewById<TextView>(R.id.txtTotalPago)
         val edtTitular = findViewById<EditText>(R.id.edtTitular)
         val edtNumeroTarjeta = findViewById<EditText>(R.id.edtNumeroTarjeta)
@@ -36,17 +31,17 @@ class PaymentActivity : AppCompatActivity() {
         val edtCvc = findViewById<EditText>(R.id.edtCvc)
         val btnConfirmarPago = findViewById<Button>(R.id.btnConfirmarPago)
         val tilFecha = findViewById<TextInputLayout>(R.id.tilFecha)
-
-        // ✅ FLECHA ATRÁS
         val btnAtras = findViewById<ImageButton>(R.id.btnAtras)
+
+        // 2. Configuración inicial
+        val total = intent.getDoubleExtra("TOTAL_CARRITO", 0.0)
+        txtTotalPago.text = "Total a pagar: %.2f€".format(total)
+
         btnAtras.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val total = intent.getDoubleExtra("TOTAL_CARRITO", 0.0)
-        txtTotalPago.text = "Total a pagar: %.2f€".format(total)
-
-        // Callback para quitar menús
+        // Bloquear copiar/pegar para mayor seguridad
         val disableActionModeCallback = object : ActionMode.Callback {
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
             override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
@@ -58,101 +53,88 @@ class PaymentActivity : AppCompatActivity() {
             editText.customInsertionActionModeCallback = disableActionModeCallback
             editText.customSelectionActionModeCallback = disableActionModeCallback
             editText.isLongClickable = false
-            editText.isCursorVisible = true
         }
 
-        // Formatear número de tarjeta
+        // 3. Formateadores y Vigilantes de texto (TextWatchers)
+
+        // Formatear Tarjeta: 1234 5678...
         edtNumeroTarjeta.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val text = s.toString().replace(" ", "")
                 val formatted = text.chunked(4).joinToString(" ")
-                edtNumeroTarjeta.removeTextChangedListener(this)
-                edtNumeroTarjeta.setText(formatted)
-                edtNumeroTarjeta.setSelection(formatted.length)
-                edtNumeroTarjeta.addTextChangedListener(this)
+                if (s.toString() != formatted) {
+                    edtNumeroTarjeta.removeTextChangedListener(this)
+                    edtNumeroTarjeta.setText(formatted)
+                    edtNumeroTarjeta.setSelection(formatted.length)
+                    edtNumeroTarjeta.addTextChangedListener(this)
+                }
+                validarFormulario(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc, btnConfirmarPago)
             }
         })
 
-        // ✅ VALIDACIÓN ESPECÍFICA DE FECHA CON ERROR VISUAL
+        // Formatear y Validar Fecha: MM/AA
         edtFecha.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Auto-insertar barra /
+                if (before == 0 && s?.length == 2) {
+                    edtFecha.append("/")
+                }
+            }
             override fun afterTextChanged(s: Editable?) {
                 val fechaText = s.toString().trim()
-
-                if (fechaText.matches(Regex("^\\d{2}/\\d{2}$"))) {
+                if (fechaText.length == 5) {
                     if (!isFechaValida(fechaText)) {
-                        tilFecha.error = "Fecha caducada"
+                        tilFecha.error = "Fecha caducada o inválida"
                     } else {
                         tilFecha.error = null
                     }
                 } else {
                     tilFecha.error = null
                 }
-
-                btnConfirmarPago.isEnabled = isFormValid(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc)
+                validarFormulario(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc, btnConfirmarPago)
             }
         })
 
-        // Formatear fecha MM/AA
-        edtFecha.addTextChangedListener(object : TextWatcher {
+        // Otros campos simples
+        val watcherSimple = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val text = s.toString()
-                if (text.length == 2 && !text.contains("/")) {
-                    edtFecha.setText("${text.substring(0, 2)}/")
-                    edtFecha.setSelection(3)
-                }
+                validarFormulario(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc, btnConfirmarPago)
             }
-        })
-
-        // Validar campos
-        val fields = listOf(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc)
-        fields.forEach { field ->
-            field.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    btnConfirmarPago.isEnabled = isFormValid(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc)
-                }
-            })
         }
+        edtTitular.addTextChangedListener(watcherSimple)
+        edtCvc.addTextChangedListener(watcherSimple)
 
-        // ✅ REDIRECCIONA A ACTIVITY DE ÉXITO
+        // 4. Lógica de Pago
         btnConfirmarPago.setOnClickListener {
-            if (isFormValid(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc)) {
-                val intent = Intent(this, PaymentSuccessActivity::class.java)
-                intent.putExtra("TOTAL_PAGADO", total)
-                startActivity(intent)
-                finish()  // Cierra PaymentActivity
-        // ✅ SIMULACIÓN DE PAGO CON LOADING
-        btnConfirmarPago.setOnClickListener {
-            if (isFormValid(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc)) {
-                btnConfirmarPago.isEnabled = false
-                val total = intent.getDoubleExtra("TOTAL_CARRITO", 0.0)
-                val intent = Intent(this, PaymentLoadingActivity::class.java)
-                intent.putExtra("TOTAL_PAGADO", total)
-                startActivity(intent)
-                finish()
-            }
+            btnConfirmarPago.isEnabled = false
+            // Enviamos a la pantalla de carga para simular proceso bancario
+            val intentLoading = Intent(this, PaymentLoadingActivity::class.java)
+            intentLoading.putExtra("TOTAL_PAGADO", total)
+            startActivity(intentLoading)
+            finish()
         }
     }
 
-    // ✅ VALIDACIÓN DE FECHA ACTUAL
+    private fun validarFormulario(titular: EditText, numero: EditText, fecha: EditText, cvc: EditText, boton: Button) {
+        boton.isEnabled = isFormValid(titular, numero, fecha, cvc)
+    }
+
     private fun isFechaValida(fechaText: String): Boolean {
         return try {
             val partes = fechaText.split("/")
             if (partes.size != 2) return false
 
-            val mes = partes[0].toIntOrNull() ?: return false
-            val ano = partes[1].toIntOrNull() ?: return false
+            val mes = partes[0].toInt()
+            val ano = partes[1].toInt()
 
-            if (mes < 1 || mes > 12) return false
+            if (mes !in 1..12) return false
 
-            val fechaCaducidad = LocalDate.of(2000 + ano, mes, 1)
+            val fechaCaducidad = LocalDate.of(2000 + ano, mes, 1).plusMonths(1).minusDays(1)
             val hoy = LocalDate.now()
 
             fechaCaducidad.isAfter(hoy)
@@ -167,13 +149,10 @@ class PaymentActivity : AppCompatActivity() {
         val fechaText = fecha.text.toString().trim()
         val cvcText = cvc.text.toString()
 
-        return when {
-            titularText.isEmpty() -> false
-            numeroText.length != 16 -> false
-            !fechaText.matches(Regex("^\\d{2}/\\d{2}$")) -> false
-            !isFechaValida(fechaText) -> false
-            !cvcText.matches(Regex("^\\d{3}$")) -> false
-            else -> true
-        }
+        return titularText.isNotEmpty() &&
+                numeroText.length == 16 &&
+                fechaText.matches(Regex("^\\d{2}/\\d{2}$")) &&
+                isFechaValida(fechaText) &&
+                cvcText.length == 3
     }
 }
