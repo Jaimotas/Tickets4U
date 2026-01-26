@@ -43,6 +43,7 @@ public class EventoController {
             evento.setDireccion(eventoDetails.getDireccion());
             evento.setAforo(eventoDetails.getAforo());
             evento.setFoto(eventoDetails.getFoto());
+            evento.setCategoria(eventoDetails.getCategoria());
             return eventoRepository.save(evento);
         }).orElseThrow(() -> new RuntimeException("Evento no encontrado"));
     }
