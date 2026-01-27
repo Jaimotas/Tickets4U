@@ -19,6 +19,7 @@ class EventAdapter(
 
     private var isEditMode = false
 
+    // Método para activar/desactivar el modo edición (lápiz)
     fun setEditMode(enabled: Boolean) {
         isEditMode = enabled
         notifyDataSetChanged()
@@ -43,28 +44,41 @@ class EventAdapter(
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
 
+        // Asignación de textos básicos
         holder.name.text = event.nombre
         holder.location.text = event.ubicacion
         holder.date.text = event.fechaInicio
 
+        // Carga de imagen dinámica con Glide
         Glide.with(holder.itemView.context)
             .load(event.foto)
             .placeholder(android.R.drawable.ic_menu_gallery)
+            .error(R.drawable.maluma) // Imagen de respaldo
             .into(holder.image)
 
-        holder.trendingBadge.visibility = if (event.categoria == "DESTACADO") View.VISIBLE else View.GONE
+        // Gestión de la etiqueta de tendencia
+        holder.trendingBadge.visibility = if (event.categoria.equals("DESTACADO", ignoreCase = true))
+            View.VISIBLE else View.GONE
 
-        // Mostrar/Ocultar botones de admin
+        // Gestión de visibilidad de herramientas de Admin
         holder.adminActions.visibility = if (isEditMode) View.VISIBLE else View.GONE
 
+        // Listeners de botones de edición y borrado
         holder.btnEdit.setOnClickListener { onEdit(event) }
         holder.btnDelete.setOnClickListener { onDelete(event) }
 
+        // Listener para abrir los detalles del evento
         holder.itemView.setOnClickListener {
             if (!isEditMode) {
                 val context = holder.itemView.context
-                val intent = Intent(context, PaginaCompraActivity::class.java).apply {
+                val intent = Intent(context, DatosDeEventoActivity::class.java).apply {
+                    // Pasamos toda la información al detalle del evento
                     putExtra("EVENTO_ID", event.id)
+                    putExtra("EVENTO_NOMBRE", event.nombre)
+                    putExtra("EVENTO_UBICACION", event.ubicacion)
+                    putExtra("EVENTO_FECHA", event.fechaInicio)
+                    putExtra("EVENTO_FOTO", event.foto)
+                    putExtra("EVENTO_DESCRIPCION", event.descripcion)
                 }
                 context.startActivity(intent)
             }

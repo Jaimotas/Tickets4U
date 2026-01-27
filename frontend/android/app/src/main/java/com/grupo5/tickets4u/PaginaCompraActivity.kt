@@ -1,5 +1,6 @@
 package com.grupo5.tickets4u
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -11,11 +12,10 @@ class PaginaCompraActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ocultar la barra superior si quieres un diseño más limpio
         supportActionBar?.hide()
         setContentView(R.layout.activity_pagina_compra)
 
-        // 1. Referencias de la UI
+        // 1. Referencias
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         val tvTitulo = findViewById<TextView>(R.id.tvTituloCompra)
         val tvFecha = findViewById<TextView>(R.id.tvFechaCompra)
@@ -24,53 +24,55 @@ class PaginaCompraActivity : AppCompatActivity() {
         val autoCompleteEntradas = findViewById<AutoCompleteTextView>(R.id.autoCompleteEntradas)
         val btnFinalizar = findViewById<MaterialButton>(R.id.btnFinalizarCompra)
 
-        // 2. Botón Volver
-        btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        // 2. Recibir datos del Intent
+        val titulo = intent.getStringExtra("TITULO") ?: "Tu Entrada"
+        val fecha = intent.getStringExtra("FECHA") ?: "Fecha pendiente"
+        val lugar = intent.getStringExtra("LUGAR") ?: "Lugar pendiente"
+        val fotoUrl = intent.getStringExtra("IMAGEN_URL")
 
-        // 3. Recibir datos del Intent (enviados desde EventAdapter)
-        val titulo = intent.getStringExtra("EVENTO_NOMBRE") ?: "Evento desconocido"
-        val fecha = intent.getStringExtra("EVENTO_FECHA") ?: "Fecha no disponible"
-        val lugar = intent.getStringExtra("EVENTO_UBICACION") ?: "Lugar no especificado"
-        val fotoUrl = intent.getStringExtra("EVENTO_FOTO") // URL del backend
-
-        // 4. Asignar datos a la UI
+        // 3. Asignar datos
         tvTitulo.text = titulo
         tvFecha.text = fecha
         tvLugar.text = lugar
 
-        // Cargar imagen con Glide (soporta URLs de internet)
         Glide.with(this)
             .load(fotoUrl)
             .placeholder(android.R.drawable.ic_menu_gallery)
-            .error(R.drawable.maluma) // Imagen por defecto si falla
+            .error(R.drawable.maluma)
             .into(ivImagen)
 
-        // 5. Configurar el Selector de cantidad (Dropdown)
-        val opciones = arrayOf("1 entrada", "2 entradas", "3 entradas", "4 entradas", "5 entradas")
+        // 4. Configurar el Dropdown
+        val opciones = arrayOf("1 entrada", "2 entradas", "3 entradas", "4 entradas")
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, opciones)
         autoCompleteEntradas.setAdapter(adapter)
 
-        // 6. Lógica de Finalizar Compra
+        // 5. Botón Volver (solo cierra esta pantalla)
+        btnBack.setOnClickListener { finish() }
+
+        // 6. Confirmación final y vuelta al MAIN
         btnFinalizar.setOnClickListener {
-            val seleccion = autoCompleteEntradas.text.toString()
+            val cantidad = autoCompleteEntradas.text.toString()
 
-            if (seleccion.isEmpty()) {
-                Toast.makeText(this, "Por favor, selecciona cuántas entradas quieres", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            AlertDialog.Builder(this)
+                .setTitle("Confirmar Reserva")
+                .setMessage("Vas a comprar $cantidad para $titulo.\n\n¿Estás de acuerdo?")
+                .setPositiveButton("Sí, comprar") { _, _ ->
 
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("¡Reserva confirmada!")
-            builder.setMessage("Has reservado $seleccion para:\n$titulo\n\nPróximo paso: Realizar el pago.")
-            builder.setPositiveButton("Ir al pago") { dialog, _ ->
-                dialog.dismiss()
-                // Aquí podrías iniciar PaymentActivity si lo deseas
-                finish()
-            }
-            builder.setNegativeButton("Cancelar", null)
-            builder.show()
+                    Toast.makeText(this, "¡Compra realizada con éxito!", Toast.LENGTH_LONG).show()
+
+                    // --- AQUÍ LA LÓGICA PARA VOLVER AL MAIN ---
+                    val intent = Intent(this, MainActivity::class.java)
+
+                    // Estas flags limpian el "stack" de actividades:
+                    // Borra "PaginaCompra" y "DatosEvento" para que el usuario
+                    // no pueda volver atrás a una compra ya hecha.
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+                    startActivity(intent)
+                    finish() // Cerramos esta pantalla definitivamente
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
     }
 }
