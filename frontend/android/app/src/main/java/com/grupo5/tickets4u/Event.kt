@@ -3,7 +3,9 @@ package com.grupo5.tickets4u
 import com.google.gson.annotations.SerializedName
 
 data class Event(
-    val id: Int? = null,
+    // Cambiado a Long? para evitar errores de mismatch con la API
+    @SerializedName("id") val id: Long? = null,
+
     @SerializedName("nombre") val nombre: String,
     @SerializedName("descripcion") val descripcion: String,
     @SerializedName("fechaInicio") val fechaInicio: String,

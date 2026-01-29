@@ -3,6 +3,28 @@
         android:layout_height="match_parent"
         android:padding="20dp">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp">
+
+            <ImageButton
+                android:id="@+id/btnVolverDialog"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Cerrar" />
+
+            <TextView
+                android:id="@+id/tvTituloDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Crear Nuevo Evento"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,6 +50,14 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Categoría" android:layout_marginTop="10dp"/>
             <Spinner android:id="@+id/spinnerCategoria" android:layout_width="match_parent" android:layout_height="wrap_content" />
 
+        <Button
+            android:id="@+id/btnCrear"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="CREAR EVENTO"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#2196F3"/> </LinearLayout>
+</ScrollView>
             <Button android:id="@+id/btnFechaInicio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Inicio" android:layout_marginTop="10dp" />
             <Button android:id="@+id/btnFechaFin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Fin" />
 
