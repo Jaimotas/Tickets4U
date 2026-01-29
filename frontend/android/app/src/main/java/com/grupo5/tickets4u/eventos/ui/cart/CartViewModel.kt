@@ -18,7 +18,10 @@ class CartViewModel : ViewModel() {
         val existingItem = currentList.find { it.id == item.id }
 
         if (existingItem != null) {
-            existingItem.cantidad += 1
+            // Límite estricto de 8
+            if (existingItem.cantidad < 8) {
+                existingItem.cantidad += 1
+            }
         } else {
             currentList.add(item)
         }
@@ -42,7 +45,7 @@ class CartViewModel : ViewModel() {
     }
 
     private fun calculateTotal() {
-        val total = _items.value?.sumOf { it.precio * it.cantidad } ?: 0.0
-        _total.value = total
+        val totalValue = _items.value?.sumOf { it.precio * it.cantidad } ?: 0.0
+        _total.value = totalValue
     }
 }
