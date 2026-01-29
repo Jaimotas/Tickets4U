@@ -1,42 +1,42 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="20dp">
-
-    <LinearLayout
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Crear Nuevo Evento"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:layout_marginBottom="20dp"/>
-
-        <EditText android:id="@+id/etNombre" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre del evento" />
-        <EditText android:id="@+id/etDescripcion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Descripción" android:inputType="textMultiLine" />
-        <EditText android:id="@+id/etCiudad" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Ciudad" />
-        <EditText android:id="@+id/etUbicacion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Lugar (ej: WiZink Center)" />
-        <EditText android:id="@+id/etDireccion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Dirección exacta" />
-        <EditText android:id="@+id/etAforo" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Aforo" android:inputType="number" />
-        <EditText android:id="@+id/etFoto" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="URL de la foto" />
-
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Categoría" android:layout_marginTop="10dp"/>
-        <Spinner android:id="@+id/spinnerCategoria" android:layout_width="match_parent" android:layout_height="wrap_content" />
-
-        <Button android:id="@+id/btnFechaInicio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Inicio" android:layout_marginTop="10dp" />
-        <Button android:id="@+id/btnFechaFin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Fin" />
-
-        <Button
-            android:id="@+id/btnCrear"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="CREAR EVENTO"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="@color/blue"/>
-    </LinearLayout>
-</ScrollView>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Crear Nuevo Evento"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"/>
+
+            <EditText android:id="@+id/etNombre" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre del evento" />
+            <EditText android:id="@+id/etDescripcion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Descripción" android:inputType="textMultiLine" />
+            <EditText android:id="@+id/etCiudad" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Ciudad" />
+            <EditText android:id="@+id/etUbicacion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Lugar (ej: WiZink Center)" />
+            <EditText android:id="@+id/etDireccion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Dirección exacta" />
+            <EditText android:id="@+id/etAforo" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Aforo" android:inputType="number" />
+            <EditText android:id="@+id/etFoto" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="URL de la foto" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Categoría" android:layout_marginTop="10dp"/>
+            <Spinner android:id="@+id/spinnerCategoria" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+            <Button android:id="@+id/btnFechaInicio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Inicio" android:layout_marginTop="10dp" />
+            <Button android:id="@+id/btnFechaFin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Fin" />
+
+            <Button
+                android:id="@+id/btnCrear"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="CREAR EVENTO"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/blue"/>
+        </LinearLayout>
+    </ScrollView>

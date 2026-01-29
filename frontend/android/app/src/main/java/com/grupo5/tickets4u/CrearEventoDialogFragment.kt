@@ -6,28 +6,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import kotlin.toString
 
-class CrearEventoDialogFragment(val onEventoCreado: () -> Unit) : DialogFragment() {
+class CrearEventoDialogFragment : DialogFragment() {
+
+    var onEventoCreado: (() -> Unit)? = null
 
     private var fechaInicioIso = ""
     private var fechaFinIso = ""
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         val view = inflater.inflate(R.layout.dialog_crear_evento, container, false)
 
         val spinner = view.findViewById<Spinner>(R.id.spinnerCategoria)
@@ -36,21 +40,26 @@ class CrearEventoDialogFragment(val onEventoCreado: () -> Unit) : DialogFragment
             android.R.layout.simple_spinner_item,
             arrayOf("ACTUAL", "DESTACADO", "INTERNACIONAL")
         )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
-        view.findViewById<Button>(R.id.btnFechaInicio).setOnClickListener { showDateTimePicker { fechaInicioIso = it } }
-        view.findViewById<Button>(R.id.btnFechaFin).setOnClickListener { showDateTimePicker { fechaFinIso = it } }
+        view.findViewById<Button>(R.id.btnFechaInicio)
+            .setOnClickListener { showDateTimePicker { fechaInicioIso = it } }
+
+        view.findViewById<Button>(R.id.btnFechaFin)
+            .setOnClickListener { showDateTimePicker { fechaFinIso = it } }
 
         view.findViewById<Button>(R.id.btnCrear).setOnClickListener {
+
             val nombre = view.findViewById<EditText>(R.id.etNombre).text.toString()
             val aforoStr = view.findViewById<EditText>(R.id.etAforo).text.toString()
 
-            if (nombre.isEmpty() || fechaInicioIso.isEmpty() || aforoStr.isEmpty()) {
-                Toast.makeText(context, "Por favor, rellena los campos básicos", Toast.LENGTH_SHORT).show()
+            if (nombre.isBlank() || fechaInicioIso.isBlank() || aforoStr.isBlank()) {
+                Toast.makeText(context, "Rellena los campos obligatorios", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val nuevoEvento = Event(
+            val evento = Event(
                 nombre = nombre,
                 descripcion = view.findViewById<EditText>(R.id.etDescripcion).text.toString(),
                 fechaInicio = fechaInicioIso,
@@ -63,8 +72,9 @@ class CrearEventoDialogFragment(val onEventoCreado: () -> Unit) : DialogFragment
                 categoria = spinner.selectedItem.toString()
             )
 
-            enviarEvento(nuevoEvento)
+            enviarEvento(evento)
         }
+
         return view
     }
 
@@ -72,10 +82,11 @@ class CrearEventoDialogFragment(val onEventoCreado: () -> Unit) : DialogFragment
         val c = Calendar.getInstance()
         DatePickerDialog(requireContext(), { _, year, month, day ->
             TimePickerDialog(requireContext(), { _, hour, minute ->
-                val fecha =
-                    String.format("%04d-%02d-%02dT%02d:%02d:00", year, month + 1, day, hour, minute)
+                val fecha = String.format(
+                    "%04d-%02d-%02dT%02d:%02d:00",
+                    year, month + 1, day, hour, minute
+                )
                 onFechaLista(fecha)
-                Toast.makeText(context, "Seleccionado: $fecha", Toast.LENGTH_SHORT).show()
             }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show()
         }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
     }
@@ -85,11 +96,11 @@ class CrearEventoDialogFragment(val onEventoCreado: () -> Unit) : DialogFragment
             try {
                 val response = RetrofitClient.instance.crearEvento(evento)
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "¡Evento creado!", Toast.LENGTH_LONG).show()
-                    onEventoCreado()
+                    Toast.makeText(context, "Evento creado", Toast.LENGTH_SHORT).show()
+                    onEventoCreado?.invoke()
                     dismiss()
                 } else {
-                    Toast.makeText(context, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Error ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()

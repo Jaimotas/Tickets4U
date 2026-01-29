@@ -4,12 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Patterns
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 data class Usuario(val email: String, val password: String)
 
@@ -32,6 +36,44 @@ class LoginActivity : AppCompatActivity() {
         val tvPasswordError = findViewById<TextView>(R.id.tvPasswordError)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
+
+        // ---------- OJO MOSTRAR / OCULTAR CONTRASEÑA ----------
+        var isPasswordVisible = false
+        val eyeOpen = ContextCompat.getDrawable(this, R.drawable.ic_eye_closed)
+        val eyeClosed = ContextCompat.getDrawable(this, R.drawable.ic_eye_open)
+
+        // Icono inicial: ojo cerrado
+        etPassword.setCompoundDrawablesWithIntrinsicBounds(
+            null, null, eyeClosed, null
+        )
+
+        etPassword.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = etPassword.compoundDrawables[2] // derecha
+                if (drawableEnd != null &&
+                    event.rawX >= (etPassword.right - drawableEnd.bounds.width())
+                ) {
+                    isPasswordVisible = !isPasswordVisible
+                    if (isPasswordVisible) {
+                        etPassword.transformationMethod =
+                            HideReturnsTransformationMethod.getInstance()
+                        etPassword.setCompoundDrawablesWithIntrinsicBounds(
+                            null, null, eyeOpen, null
+                        )
+                    } else {
+                        etPassword.transformationMethod =
+                            PasswordTransformationMethod.getInstance()
+                        etPassword.setCompoundDrawablesWithIntrinsicBounds(
+                            null, null, eyeClosed, null
+                        )
+                    }
+                    etPassword.setSelection(etPassword.text.length)
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+        // ------------------------------------------------------
 
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
