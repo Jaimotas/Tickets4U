@@ -1,7 +1,8 @@
-package com.tickets4u.events.models;
+package com.tickets4u.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "evento")
@@ -10,20 +11,22 @@ public class Evento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "id_admin")
+    @ManyToOne
+    @Column(name = "id_admin", nullable = false)
     private Long idAdmin;
     
     private String nombre;
     private String descripcion;
     
-    @Column(name = "fecha_inicio")
+    @Column(name = "fecha_inicio", nullable = false)
     private LocalDateTime fechaInicio;
     
-    @Column(name = "fecha_fin")
+    @Column(name = "fecha_fin", nullable = false)
     private LocalDateTime fechaFin;
     
     private String ciudad;
     private String ubicacion;
+    @Column(columnDefinition = "POINT")
     private String direccion;
     private Integer aforo;
     private String foto;
@@ -34,6 +37,15 @@ public class Evento {
     public enum Categoria {
         ACTUAL, DESTACADO, INTERNACIONAL
     }
+
+    @OneToMany(mappedBy = "evento")
+    private List<Pedido> pedidos;
+
+    @OneToMany(mappedBy = "evento")
+    private List<Ticket> tickets;
+
+    @OneToOne(mappedBy = "evento")
+    private Estadisticas estadisticas;
     
     public Evento() {}
     

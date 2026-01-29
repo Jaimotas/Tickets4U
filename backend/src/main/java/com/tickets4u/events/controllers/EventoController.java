@@ -1,7 +1,8 @@
 package com.tickets4u.events.controllers;
 
-import com.tickets4u.events.models.Evento;
 import com.tickets4u.events.repositories.EventoRepository;
+import com.tickets4u.models.Evento;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
