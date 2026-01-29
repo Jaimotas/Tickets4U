@@ -34,6 +34,37 @@ public class Ticket {
     public enum Estado {
         usado, activo, cancelado
     }
-
+    
     // getters y setters
+
+	public Integer getId() {
+		return id;
+	}
+
+	public Usuario getCliente() {
+		return cliente;
+	}
+
+	public Pedido getPedido() {
+		return pedido;
+	}
+
+	public Evento getEvento() {
+		return evento;
+	}
+
+	public String getQr() {
+		return qr;
+	}
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public String getTipoEntrada() {
+		return tipoEntrada;
+	}
+
+  
+    
 }

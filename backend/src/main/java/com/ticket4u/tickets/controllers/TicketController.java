@@ -1,6 +1,6 @@
 package com.ticket4u.tickets.controllers;
 
-import com.tickets4u.descuentos.models.Ticket;
+import com.tickets4u.models.Ticket;
 import com.tickets4u.tickets.repositories.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class TicketController {
             if (ticketActivo.isEmpty()) {
                 Optional<Ticket> cualquierTicket = ticketRepository.findByEventoIdAndUsuarioId(eventoId, usuarioId);
                 if (cualquierTicket.isPresent()) {
-                    String estado = cualquierTicket.get().getEstado() != null ? cualquierTicket.get().getEstado() : "desconocido";
+                    ENUM estado = cualquierTicket.get().getEstado() != null ? cualquierTicket.get().getEstado() : "desconocido";
                     return ResponseEntity.ok("{\"status\":\"" + estado.toUpperCase() + "\"}");
                 }
                 return ResponseEntity.badRequest().body("{\"status\":\"INVALIDO\"}");
