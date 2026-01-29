@@ -1,4 +1,4 @@
-package com.grupo5.tickets4u.ui.cart
+package com.grupo5.tickets4u.eventos.ui.cart
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.grupo5.tickets4u.R
 import com.grupo5.tickets4u.eventos.ui.payment.PaymentActivity
-import com.grupo5.tickets4u.eventos.ui.cart.CartManager
 
 class CartActivity : AppCompatActivity() {
 
@@ -23,8 +22,8 @@ class CartActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         supportActionBar?.hide()
+
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -37,30 +36,22 @@ class CartActivity : AppCompatActivity() {
         val txtTotal = findViewById<TextView>(R.id.txtTotal)
         val btnPagar = findViewById<Button>(R.id.btnPagar)
 
-        // Configuración RecyclerView
         adapter = CartAdapter(viewModel)
         rvCart.layoutManager = LinearLayoutManager(this)
         rvCart.adapter = adapter
 
-        // Observar cambios en el ViewModel
         viewModel.items.observe(this, Observer { items ->
-            adapter.updateItems(items)
-            // Si el carrito está vacío, podrías mostrar un mensaje o imagen
+            adapter.updateItems(items ?: emptyList())
         })
 
         viewModel.total.observe(this, Observer { total ->
-            txtTotal.text = "Total: %.2f€".format(total)
+            txtTotal.text = "Total: %.2f€".format(total ?: 0.0)
         })
 
-        // CARGAR DATOS REALES: Pasamos los items del Manager al ViewModel
-        val itemsDelManager = CartManager.getItems()
-        if (itemsDelManager.isNotEmpty()) {
-            itemsDelManager.forEach { viewModel.addItem(it) }
-        }
+        // Carga inicial desde el Manager
+        CartManager.getItems().forEach { viewModel.addItem(it) }
 
-        btnAtras.setOnClickListener {
-            finish()
-        }
+        btnAtras.setOnClickListener { finish() }
 
         btnPagar.setOnClickListener {
             val totalValue = viewModel.total.value ?: 0.0

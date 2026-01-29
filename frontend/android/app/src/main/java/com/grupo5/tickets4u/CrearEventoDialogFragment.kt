@@ -14,7 +14,7 @@ import java.util.Calendar
 
 class CrearEventoDialogFragment(
     val eventoParaEditar: Event? = null,
-    val onEventoGuardado: () -> Unit
+    val onEventoGuardado: () -> Unit // Este es el nombre correcto
 ) : DialogFragment() {
 
     private var fechaInicioIso = ""
@@ -35,7 +35,6 @@ class CrearEventoDialogFragment(
     ): View {
         val view = inflater.inflate(R.layout.dialog_crear_evento, container, false)
 
-        // Referencias
         val tvTitulo = view.findViewById<TextView>(R.id.tvTituloDialog)
         val btnGuardar = view.findViewById<Button>(R.id.btnCrear)
         val btnVolver = view.findViewById<ImageButton>(R.id.btnVolverDialog)
@@ -49,11 +48,9 @@ class CrearEventoDialogFragment(
         val etAforo = view.findViewById<EditText>(R.id.etAforo)
         val etFoto = view.findViewById<EditText>(R.id.etFoto)
 
-        // Configurar Spinner
         val categorias = arrayOf("ACTUAL", "DESTACADO", "INTERNACIONAL")
         spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categorias)
 
-        // MODO EDICIÓN: Cargar datos si existen
         eventoParaEditar?.let { ev ->
             tvTitulo.text = "Editar Evento"
             btnGuardar.text = "FINALIZAR EDICIÓN"
@@ -70,14 +67,20 @@ class CrearEventoDialogFragment(
         }
 
         btnVolver.setOnClickListener { dismiss() }
-        view.findViewById<Button>(R.id.btnFechaInicio).setOnClickListener { showDateTimePicker { fechaInicioIso = it } }
-        view.findViewById<Button>(R.id.btnFechaFin).setOnClickListener { showDateTimePicker { fechaFinIso = it } }
+
+        view.findViewById<Button>(R.id.btnFechaInicio).setOnClickListener {
+            showDateTimePicker { fecha -> fechaInicioIso = fecha }
+        }
+
+        view.findViewById<Button>(R.id.btnFechaFin).setOnClickListener {
+            showDateTimePicker { fecha -> fechaFinIso = fecha }
+        }
 
         btnGuardar.setOnClickListener {
             val aforoVal = etAforo.text.toString().toIntOrNull() ?: 0
 
             val eventoData = Event(
-                id = eventoParaEditar?.id, // Mantiene el ID si es edición, null si es nuevo
+                id = eventoParaEditar?.id,
                 nombre = etNombre.text.toString(),
                 descripcion = etDesc.text.toString(),
                 fechaInicio = fechaInicioIso,
@@ -91,24 +94,8 @@ class CrearEventoDialogFragment(
                 idAdmin = 1
             )
 
-            lifecycleScope.launch {
-                try {
-                    val response = if (eventoParaEditar == null) {
-                        RetrofitClient.instance.crearEvento(eventoData)
-                    } else {
-                        // Usamos !! porque en edición el ID nunca será nulo
-                        RetrofitClient.instance.editarEvento(eventoParaEditar.id!!, eventoData)
-                    }
-
-                    if (response.isSuccessful) {
-                        Toast.makeText(context, "¡Éxito!", Toast.LENGTH_SHORT).show()
-                        onEventoGuardado()
-                        dismiss()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()
-                }
-            }
+            // Llamamos a la función de enviar/editar
+            procesarEvento(eventoData)
         }
 
         return view
@@ -116,30 +103,41 @@ class CrearEventoDialogFragment(
 
     private fun showDateTimePicker(onFechaLista: (String) -> Unit) {
         val c = Calendar.getInstance()
-        DatePickerDialog(requireContext(), { _, year, month, day ->
+        // Especificamos los tipos (view, y, m, d) para evitar el error de inferencia
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _: DatePicker, year: Int, month: Int, day: Int ->
             TimePickerDialog(requireContext(), { _, hour, minute ->
-                val fecha = String.format(
-                    "%04d-%02d-%02dT%02d:%02d:00",
-                    year, month + 1, day, hour, minute
-                )
+                val fecha = String.format("%04d-%02d-%02dT%02d:%02d:00", year, month + 1, day, hour, minute)
                 onFechaLista(fecha)
             }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show()
-        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
+        }
+
+        DatePickerDialog(
+            requireContext(),
+            dateSetListener,
+            c.get(Calendar.YEAR),
+            c.get(Calendar.MONTH),
+            c.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
-    private fun enviarEvento(evento: Event) {
+    private fun procesarEvento(evento: Event) {
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.instance.crearEvento(evento)
+                val response = if (eventoParaEditar == null) {
+                    RetrofitClient.instance.crearEvento(evento)
+                } else {
+                    RetrofitClient.instance.editarEvento(eventoParaEditar.id!!, evento)
+                }
+
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "Evento creado", Toast.LENGTH_SHORT).show()
-                    onEventoCreado?.invoke()
+                    Toast.makeText(requireContext(), "¡Éxito!", Toast.LENGTH_SHORT).show()
+                    onEventoGuardado() // Nombre corregido aquí
                     dismiss()
                 } else {
-                    Toast.makeText(context, "Error ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show()
             }
         }
     }

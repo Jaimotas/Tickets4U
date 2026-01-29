@@ -1,4 +1,4 @@
-package com.grupo5.tickets4u.ui.cart
+package com.grupo5.tickets4u.eventos.ui.cart
 
 import android.view.LayoutInflater
 import android.view.View

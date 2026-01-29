@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+// Asegúrate de que estas rutas sean las correctas en tu proyecto
 import com.example.tickets4u.Ticket
 import com.example.tickets4u.TicketStatus
 
@@ -16,12 +17,11 @@ class TicketWallet : AppCompatActivity() {
         val rvTickets = findViewById<RecyclerView>(R.id.rvTickets)
         rvTickets.layoutManager = LinearLayoutManager(this)
 
-        // Eventos de ejemplo (usando Event real)
         val evento1 = Event(
-            id = 1,
+            id = 1L, // Usamos L para indicar que es Long si tu clase Event lo requiere
             idAdmin = 101,
             nombre = "Concierto Rock Night",
-            descripcion = "Una noche inolvidable con las mejores bandas de rock.",
+            descripcion = "Una noche inolvidable...",
             fechaInicio = "2026-04-12T20:00",
             fechaFin = "2026-04-12T23:00",
             ciudad = "Madrid",
@@ -33,10 +33,10 @@ class TicketWallet : AppCompatActivity() {
         )
 
         val evento2 = Event(
-            id = 2,
+            id = 2L,
             idAdmin = 102,
             nombre = "Mad Cool Festival",
-            descripcion = "Festival internacional de música con los mejores artistas del año.",
+            descripcion = "Festival internacional...",
             fechaInicio = "2026-07-10T12:00",
             fechaFin = "2026-07-12T23:00",
             ciudad = "Madrid",
@@ -47,16 +47,15 @@ class TicketWallet : AppCompatActivity() {
             categoria = "DESTACADO"
         )
 
-        // Tickets de ejemplo
         val tickets = listOf(
             Ticket(1, 1, "Concierto Rock Night", TicketStatus.ACTIVO, "General"),
             Ticket(2, 2, "Mad Cool Festival", TicketStatus.ACTIVO, "VIP")
         )
 
-        // Crear mapa id_evento -> Event
-        val eventosMap = mapOf(
-            evento1.id!! to evento1,
-            evento2.id!! to evento2
+        // Convertimos el ID a Int explícitamente para que coincida con lo que espera el TicketAdapter
+        val eventosMap: Map<Int, Event> = mapOf(
+            evento1.id!!.toInt() to evento1,
+            evento2.id!!.toInt() to evento2
         )
 
         rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)

@@ -3,56 +3,81 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
-    android:layout_margin="8dp">
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-        <TextView
-            android:id="@+id/txtEvento"
+        <ImageView
+            android:id="@+id/imgEventCart"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_gallery" />
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Concierto Rock"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnMenos" />
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/txtPrecio"
-            android:layout_width="0dp"
+            <TextView
+                android:id="@+id/txtNombreEventCart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre del Evento"
+                android:textColor="#0F172A"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtPrecioCart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="25.00€"
+                android:textColor="#2563EB" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="25€ x 1"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/txtEvento"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnMenos" />
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnMenos"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="-"
-            android:textSize="16sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnMas"
-            android:layout_marginEnd="8dp" />
+            <ImageButton
+                android:id="@+id/btnMenos"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="#E2E8F0"
+                android:contentDescription="Menos"
+                android:src="@android:drawable/ic_input_delete"
+                app:tint="#0F172A" />
 
-        <Button
-            android:id="@+id/btnMas"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="+"
-            android:textSize="16sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="16dp" />
+            <TextView
+                android:id="@+id/txtCantidadCart"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="#0F172A"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+            <ImageButton
+                android:id="@+id/btnMas"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="#2563EB"
+                android:contentDescription="Mas"
+                android:src="@android:drawable/ic_input_add"
+                app:tint="#FFFFFF" />
+        </LinearLayout>
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
