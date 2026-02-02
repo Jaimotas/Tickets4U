@@ -1,4 +1,4 @@
-package com.tickets4u.models;
+	package com.tickets4u.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -11,8 +11,7 @@ public class Evento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne
-    @Column(name = "id_admin", nullable = false)
+    @JoinColumn(name = "id_admin", nullable = false)
     private Long idAdmin;
     
     private String nombre;
