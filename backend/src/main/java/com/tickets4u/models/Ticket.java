@@ -24,68 +24,31 @@ public class Ticket {
     @Column(unique = true)
     private String qr;
 
-    @Enumerated(EnumType.STRING)
-    private Estado estado;
+    private String estado; // String para que acepte "activo", "ACTIVO", etc.
 
     @Column(name = "tipo_entrada")
     private String tipoEntrada;
 
-    @Column(name = "created_at")
-    @Transient
+    @Transient 
     private LocalDateTime createdAt;
     
-    public enum Estado {
-        USADO, ACTIVO, CANCELADO
-    }
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        if (estado == null) {
-            estado = Estado.ACTIVO;
-        }
-    }
-    
     public Ticket() {}
-    
-    public Ticket(Integer idCliente, Long idPedido, Evento evento, String qr, String tipoEntrada) {
-        this.idCliente = idCliente;
-        this.idPedido = idPedido;
-        this.evento = evento;
-        this.qr = qr;
-        this.tipoEntrada = tipoEntrada;
-        this.estado = Estado.ACTIVO;
-    }
-
     
     // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    
     public Integer getIdCliente() { return idCliente; }
     public void setIdCliente(Integer idCliente) { this.idCliente = idCliente; }
-    
     public Long getIdPedido() { return idPedido; }
     public void setIdPedido(Long idPedido) { this.idPedido = idPedido; }
-    
+    public Evento getEvento() { return evento; }
+    public void setEvento(Evento evento) { this.evento = evento; }
     public String getQr() { return qr; }
     public void setQr(String qr) { this.qr = qr; }	
-    
-    public Estado getEstado() { return estado; }
-    public void setEstado(Estado estado) { this.estado = estado; }
-    
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
     public String getTipoEntrada() { return tipoEntrada; }
     public void setTipoEntrada(String tipoEntrada) { this.tipoEntrada = tipoEntrada; }
-    
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    
-    public Evento getEvento() {
-        return evento;
-    }
-
-    public void setEvento(Evento evento) {
-        this.evento = evento;
-    }
-
 }
