@@ -36,6 +36,7 @@ class CartActivity : AppCompatActivity() {
         val txtTotal = findViewById<TextView>(R.id.txtTotal)
         val btnPagar = findViewById<Button>(R.id.btnPagar)
 
+        // Configurar Adapter con botones + y -
         adapter = CartAdapter(viewModel)
         rvCart.layoutManager = LinearLayoutManager(this)
         rvCart.adapter = adapter
@@ -48,7 +49,7 @@ class CartActivity : AppCompatActivity() {
             txtTotal.text = "Total: %.2f€".format(total ?: 0.0)
         })
 
-        // Carga inicial desde el Manager
+        // Sincronizar Manager con ViewModel
         CartManager.getItems().forEach { viewModel.addItem(it) }
 
         btnAtras.setOnClickListener { finish() }
@@ -56,6 +57,7 @@ class CartActivity : AppCompatActivity() {
         btnPagar.setOnClickListener {
             val totalValue = viewModel.total.value ?: 0.0
             if (totalValue > 0) {
+                // Pasamos al flujo de pago (PaymentActivity)
                 val intent = Intent(this, PaymentActivity::class.java)
                 intent.putExtra("TOTAL_CARRITO", totalValue)
                 startActivity(intent)
