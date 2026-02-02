@@ -6,7 +6,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.grupo5.tickets4u.* // Importa ApiService, RetrofitClient y las Data Classes
+import com.grupo5.tickets4u.*
+import com.grupo5.tickets4u.eventos.ui.cart.CartManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -18,68 +19,79 @@ class PaymentLoadingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_payment_loading)
 
         val total = intent.getDoubleExtra("TOTAL_PAGADO", 0.0)
-        val idEvento = intent.getLongExtra("ID_EVENTO", 1L)
-        val cantidad = intent.getIntExtra("CANTIDAD", 1)
-
-        // ¡OJO! Asegúrate de que el ID 1 exista en tu tabla de usuarios en MySQL
         val idCliente = 1
 
-        procesarCompra(idCliente, idEvento, cantidad, total)
+        procesarCompraCompleta(idCliente, total)
     }
 
-    private fun procesarCompra(idCliente: Int, idEvento: Long, cantidad: Int, total: Double) {
+    private fun procesarCompraCompleta(idCliente: Int, total: Double) {
         lifecycleScope.launch {
             try {
                 delay(1500)
 
-                // PASO 1: Crear el Pedido enviando el objeto Evento anidado
-                val pedidoData = mapOf(
-                    "idCliente" to idCliente,
-                    "total" to total,
-                    "pago" to "Tarjeta",
-                    "evento" to mapOf("id" to idEvento)
-                )
+                // 1. Usamos getItems() de tu CartManager
+                val itemsDelCarrito = CartManager.getItems()
+
+                if (itemsDelCarrito.isEmpty()) {
+                    manejarError("El carrito está vacío")
+                    return@launch
+                }
+
+                val primerItem = itemsDelCarrito[0]
+
+                // 2. Crear el Pedido
+                val pedidoData = HashMap<String, Any>()
+                pedidoData["idCliente"] = idCliente
+                pedidoData["total"] = total
+                pedidoData["pago"] = "Tarjeta"
+
+                val eventoData = HashMap<String, Any>()
+                // Convertimos el String id a Long para el backend
+                eventoData["id"] = primerItem.id.toLong()
+                pedidoData["evento"] = eventoData
 
                 val responsePedido = RetrofitClient.instance.crearPedido(pedidoData)
 
                 if (responsePedido.isSuccessful && responsePedido.body() != null) {
                     val body = responsePedido.body()!!
+                    val idPedidoGenerado = (body["id"]?.toString()?.toDouble() ?: 0.0).toLong()
 
-                    // El ID suele venir como Double desde el JSON de Gson
-                    val idPedidoGenerado = (body["id"] as? Double)?.toLong()
-                        ?: (body["id"] as? Int)?.toLong()
-                        ?: throw Exception("ID de pedido no recibido")
+                    // 3. Transformar items usando TUS nombres de variables: id y cantidad
+                    val listaTicketsRequest = mutableListOf<TicketItemRequest>()
 
-                    Log.d("API_SUCCESS", "Pedido creado con éxito. ID: $idPedidoGenerado")
+                    for (item in itemsDelCarrito) {
+                        val ticketReq = TicketItemRequest(
+                            idEvento = item.id.toLong(), // Usamos tu 'id' convertido
+                            tipoEntrada = "General",     // Valor por defecto ya que no está en TicketItem
+                            cantidad = item.cantidad      // Usamos tu 'cantidad'
+                        )
+                        listaTicketsRequest.add(ticketReq)
+                    }
 
-                    // PASO 2: Crear los Tickets asociados al ID obtenido
                     val requestTickets = CrearTicketsRequest(
                         idCliente = idCliente,
                         idPedido = idPedidoGenerado,
-                        idEvento = idEvento,
-                        tipoEntrada = "General",
-                        cantidad = cantidad
+                        items = listaTicketsRequest
                     )
 
                     val responseTickets = RetrofitClient.instance.crearTickets(requestTickets)
 
                     if (responseTickets.isSuccessful) {
-                        val intent = Intent(this@PaymentLoadingActivity, PaymentSuccessActivity::class.java)
-                        intent.putExtra("TOTAL_PAGADO", total)
-                        startActivity(intent)
+                        CartManager.clearCart()
+                        val intentExito = Intent(this@PaymentLoadingActivity, PaymentSuccessActivity::class.java)
+                        intentExito.putExtra("TOTAL_PAGADO", total)
+                        startActivity(intentExito)
                         finish()
                     } else {
-                        manejarError("Error en Tickets: ${responseTickets.code()}")
+                        manejarError("Error Tickets: ${responseTickets.code()}")
                     }
                 } else {
-                    // Si llega aquí, es posible que el servidor devolviera 400, 404 o 500
-                    Log.e("API_ERROR", "Error en Pedido: ${responsePedido.errorBody()?.string()}")
-                    manejarError("El servidor rechazó el pedido (${responsePedido.code()})")
+                    manejarError("Error Pedido: ${responsePedido.code()}")
                 }
 
             } catch (e: Exception) {
-                Log.e("API_ERROR", "Excepción: ${e.message}")
-                manejarError("Sin respuesta del servidor. Verifica que Spring Boot esté corriendo.")
+                Log.e("API_ERROR", "Error: ${e.message}")
+                manejarError("Datos inválidos: Asegúrate de que el ID sea numérico")
             }
         }
     }

@@ -5,13 +5,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
-// --- MODELOS DE DATOS ---
-// Nota: Event y Ticket deben estar definidos en sus propios archivos
-// dentro del paquete com.grupo5.tickets4u para evitar errores de redodeclaración.
+// --- MODELOS DE DATOS ACTUALIZADOS ---
 
 data class CrearTicketsRequest(
     val idCliente: Int,
     val idPedido: Long,
+    val items: List<TicketItemRequest> // AHORA ES UNA LISTA
+)
+
+data class TicketItemRequest(
     val idEvento: Long,
     val tipoEntrada: String,
     val cantidad: Int
@@ -21,7 +23,6 @@ data class CrearTicketsRequest(
 
 interface ApiService {
 
-    // SECCIÓN DE EVENTOS
     @GET("eventos")
     suspend fun getEventos(): List<Event>
 
@@ -34,11 +35,10 @@ interface ApiService {
     @DELETE("eventos/{id}")
     suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
 
-    // SECCIÓN DE COMPRAS (PEDIDOS)
     @POST("pedidos")
     suspend fun crearPedido(@Body pedido: Map<String, @JvmSuppressWildcards Any>): Response<Map<String, Any>>
 
-    // SECCIÓN DE TICKETS
+    // SECCIÓN DE TICKETS: Recibe el nuevo objeto con la lista
     @POST("tickets/crear-tickets")
     suspend fun crearTickets(@Body request: CrearTicketsRequest): Response<List<Ticket>>
 
@@ -49,10 +49,7 @@ interface ApiService {
     suspend fun validarTicket(@Path("qr") qr: String): Response<Ticket>
 }
 
-// --- CLIENTE RETROFIT ---
-
 object RetrofitClient {
-    // 10.0.2.2 es el host local para el emulador de Android
     private const val BASE_URL = "http://10.0.2.2:8080/api/"
 
     val instance: ApiService by lazy {
