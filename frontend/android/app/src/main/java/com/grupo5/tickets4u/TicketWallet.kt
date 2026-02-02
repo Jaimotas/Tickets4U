@@ -21,7 +21,7 @@ class TicketWallet : AppCompatActivity() {
         rvTickets.layoutManager = LinearLayoutManager(this)
 
         // Asegúrate de que este ID existe en tu base de datos de Spring Boot
-        val idClienteLogueado = 123
+        val idClienteLogueado = 1
         cargarTicketsDesdeBackend(idClienteLogueado)
     }
 
