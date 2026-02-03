@@ -1,6 +1,7 @@
 package com.grupo5.tickets4u
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -11,8 +12,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import okhttp3.*
-import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -23,7 +22,7 @@ class QrScannerActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "QrScanner"
         private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)  // ← CORREGIDO
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +52,8 @@ class QrScannerActivity : AppCompatActivity() {
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor, QrAnalyzer { qrCode ->
-                        validateQrCode(qrCode)
+                        // En lugar de validar aquí, devolvemos el resultado al Main
+                        enviarResultadoAlMain(qrCode)
                     })
                 }
 
@@ -70,32 +70,11 @@ class QrScannerActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun validateQrCode(qrResult: String) {
-        Log.d(TAG, "Escaneando QR: $qrResult")  // ← DEBUG
-
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url("http://10.0.2.2:8080/api/tickets/validate?qr=$qrResult")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {  // ← TIPOS EXPLÍCITOS
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@QrScannerActivity, "❌ Backend offline: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        val resultado = response.body?.string() ?: "Sin respuesta"
-                        Toast.makeText(this@QrScannerActivity, "✅ $resultado", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this@QrScannerActivity, "❌ Error ${response.code}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        })
+    private fun enviarResultadoAlMain(qrResult: String) {
+        val intent = Intent()
+        intent.putExtra("QR_CODE", qrResult)
+        setResult(RESULT_OK, intent)
+        finish() // Cerramos y volvemos al MainActivity
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -107,7 +86,7 @@ class QrScannerActivity : AppCompatActivity() {
         if (allPermissionsGranted()) {
             startCamera()
         } else {
-            Toast.makeText(this, "Permisos denegados", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Permisos de cámara necesarios", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

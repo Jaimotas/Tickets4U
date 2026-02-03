@@ -1,29 +1,14 @@
 package com.grupo5.tickets4u
 
-import retrofit2.Response // Importante para que funcione Response<T>
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
-
-// ← NUEVO: Data class para respuesta QR
-data class QrResponse(
-    val status: String,
-    val message: String? = null
-)
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
-// --- MODELOS DE DATOS ACTUALIZADOS ---
+data class QrResponse(val status: String, val message: String? = null)
 
 data class CrearTicketsRequest(
     val idCliente: Int,
     val idPedido: Long,
-    val items: List<TicketItemRequest> // AHORA ES UNA LISTA
+    val items: List<TicketItemRequest>
 )
 
 data class TicketItemRequest(
@@ -32,19 +17,12 @@ data class TicketItemRequest(
     val cantidad: Int
 )
 
-// --- INTERFAZ DE API ---
-
 interface ApiService {
-
+    // EVENTOS
     @GET("eventos")
     suspend fun getEventos(): List<Event>
 
     @POST("eventos")
-    suspend fun crearEvento(@Body evento: Event): retrofit2.Response<Event>
-
-    // ← NUEVO: Validación QR (tu backend puerto 9090)
-    @GET("tickets/validate")
-    suspend fun validarQr(@Query("qr") qrCode: String): QrResponse
     suspend fun crearEvento(@Body evento: Event): Response<Event>
 
     @PUT("eventos/{id}")
@@ -53,28 +31,17 @@ interface ApiService {
     @DELETE("eventos/{id}")
     suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
 
+    // COMPRAS Y TICKETS
     @POST("pedidos")
     suspend fun crearPedido(@Body pedido: Map<String, @JvmSuppressWildcards Any>): Response<Map<String, Any>>
 
-    // SECCIÓN DE TICKETS: Recibe el nuevo objeto con la lista
     @POST("tickets/crear-tickets")
     suspend fun crearTickets(@Body request: CrearTicketsRequest): Response<List<Ticket>>
 
     @GET("tickets/cliente/{idCliente}")
     suspend fun getTicketsCliente(@Path("idCliente") idCliente: Int): Response<List<Ticket>>
 
-    @GET("tickets/qr/{qr}")
-    suspend fun validarTicket(@Path("qr") qr: String): Response<Ticket>
-}
-
-object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:8080/api/"
-
-    val instance: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+    // VALIDACIÓN QR
+    @GET("tickets/validate")
+    suspend fun validarQr(@Query("qr") qrCode: String): QrResponse
 }

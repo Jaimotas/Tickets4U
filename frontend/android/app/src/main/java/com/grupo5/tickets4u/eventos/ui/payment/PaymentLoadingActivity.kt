@@ -19,17 +19,18 @@ class PaymentLoadingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_payment_loading)
 
         val total = intent.getDoubleExtra("TOTAL_PAGADO", 0.0)
-        val idCliente = 1
 
-        procesarCompraCompleta(idCliente, total)
+        // Mantenemos el ID como Long para la lógica general
+        val idClienteFijo = 1L
+
+        procesarCompraCompleta(idClienteFijo, total)
     }
 
-    private fun procesarCompraCompleta(idCliente: Int, total: Double) {
+    private fun procesarCompraCompleta(idCliente: Long, total: Double) {
         lifecycleScope.launch {
             try {
                 delay(1500)
 
-                // 1. Usamos getItems() de tu CartManager
                 val itemsDelCarrito = CartManager.getItems()
 
                 if (itemsDelCarrito.isEmpty()) {
@@ -39,16 +40,18 @@ class PaymentLoadingActivity : AppCompatActivity() {
 
                 val primerItem = itemsDelCarrito[0]
 
-                // 2. Crear el Pedido
+                // 1. CREAR ESTRUCTURA PARA EL PEDIDO
                 val pedidoData = HashMap<String, Any>()
-                pedidoData["idCliente"] = idCliente
+                val clienteMap = HashMap<String, Any>()
+                clienteMap["id"] = idCliente
+                pedidoData["cliente"] = clienteMap
+
                 pedidoData["total"] = total
                 pedidoData["pago"] = "Tarjeta"
 
-                val eventoData = HashMap<String, Any>()
-                // Convertimos el String id a Long para el backend
-                eventoData["id"] = primerItem.id.toLong()
-                pedidoData["evento"] = eventoData
+                val eventoMap = HashMap<String, Any>()
+                eventoMap["id"] = primerItem.id.toLong()
+                pedidoData["evento"] = eventoMap
 
                 val responsePedido = RetrofitClient.instance.crearPedido(pedidoData)
 
@@ -56,20 +59,21 @@ class PaymentLoadingActivity : AppCompatActivity() {
                     val body = responsePedido.body()!!
                     val idPedidoGenerado = (body["id"]?.toString()?.toDouble() ?: 0.0).toLong()
 
-                    // 3. Transformar items usando TUS nombres de variables: id y cantidad
+                    // 2. CREAR TICKETS PARA CADA ITEM DEL CARRITO
                     val listaTicketsRequest = mutableListOf<TicketItemRequest>()
 
                     for (item in itemsDelCarrito) {
                         val ticketReq = TicketItemRequest(
-                            idEvento = item.id.toLong(), // Usamos tu 'id' convertido
-                            tipoEntrada = "General",     // Valor por defecto ya que no está en TicketItem
-                            cantidad = item.cantidad      // Usamos tu 'cantidad'
+                            idEvento = item.id.toLong(),
+                            tipoEntrada = "General",
+                            cantidad = item.cantidad
                         )
                         listaTicketsRequest.add(ticketReq)
                     }
 
+                    // CORRECCIÓN AQUÍ: Convertimos idCliente de Long a Int
                     val requestTickets = CrearTicketsRequest(
-                        idCliente = idCliente,
+                        idCliente = idCliente.toInt(), // <--- SOLUCIÓN AL TYPE MISMATCH
                         idPedido = idPedidoGenerado,
                         items = listaTicketsRequest
                     )
@@ -83,15 +87,15 @@ class PaymentLoadingActivity : AppCompatActivity() {
                         startActivity(intentExito)
                         finish()
                     } else {
-                        manejarError("Error Tickets: ${responseTickets.code()}")
+                        manejarError("Error al generar tickets: ${responseTickets.code()}")
                     }
                 } else {
-                    manejarError("Error Pedido: ${responsePedido.code()}")
+                    manejarError("Error en el servidor al crear el pedido")
                 }
 
             } catch (e: Exception) {
-                Log.e("API_ERROR", "Error: ${e.message}")
-                manejarError("Datos inválidos: Asegúrate de que el ID sea numérico")
+                Log.e("API_ERROR", "Fallo crítico: ${e.message}")
+                manejarError("Error de conexión con el servidor")
             }
         }
     }

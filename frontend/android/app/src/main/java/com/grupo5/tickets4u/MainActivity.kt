@@ -5,11 +5,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -19,8 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
-// IMPORT CORREGIDO: Basado en tu estructura de carpetas eventos.ui.cart
-import com.grupo5.tickets4u.eventos.ui.cart.CartActivity
+import com.grupo5.tickets4u.eventos.ui.cart.CartActivity // Asegúrate de que esta ruta es correcta
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -30,19 +26,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var destacadosRecycler: RecyclerView
     private lateinit var actualesRecycler: RecyclerView
     private lateinit var internacionalesRecycler: RecyclerView
+    private var isEditModeActive = false
 
-    // 🚀 Nuevo: launcher para recibir el QR escaneado
-    private val qrScannerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
+    private val qrScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val qrCode = result.data?.getStringExtra("QR_CODE")
-            qrCode?.let {
-                validarQrEnBackend(it)
-            }
+            qrCode?.let { validarQrEnBackend(it) }
         }
     }
-    private var isEditModeActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,90 +41,78 @@ class MainActivity : AppCompatActivity() {
 
         setupToolbarAndDrawer()
         setupRecyclerViews()
-        setupQrScanner()
-        setupCrearEventoButton()
         fetchEventos()
 
-    // ✅ Abre el escáner QR (tu QrScannerActivity)
-    private fun setupQrScanner() {
+        // --- LISTENERS DEL TOOLBAR (CARRITO Y PERFIL) ---
+        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
+            Log.d("NAV", "Abriendo Carrito")
+            // Intent para abrir tu actividad de carrito
+            startActivity(Intent(this, CartActivity::class.java))
+        }
+
+        findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
+            Toast.makeText(this, "Perfil de usuario (Próximamente)", Toast.LENGTH_SHORT).show()
+        }
+
+        // --- OTROS BOTONES ---
         findViewById<Button>(R.id.btnScanQr).setOnClickListener {
-            val intent = Intent(this, QrScannerActivity::class.java)
-            qrScannerLauncher.launch(intent)
+            qrScannerLauncher.launch(Intent(this, QrScannerActivity::class.java))
         }
-    }
 
-    // ✅ Mismo método de antes: valida con backend
-    private fun validarQrEnBackend(qrCode: String) {
-        lifecycleScope.launch {
-            try {
-                Log.d("QR_VALIDATION", "Validando QR: $qrCode")
-                val response = RetrofitClient.instance.validarQr(qrCode)
-
-                when {
-                    response.status == "VALIDO" -> {
-                        Toast.makeText(this@MainActivity, "✅ Ticket válido", Toast.LENGTH_LONG).show()
-                    }
-                    response.status == "INVALIDO" -> {
-                        Toast.makeText(this@MainActivity, "❌ Ticket inválido", Toast.LENGTH_LONG).show()
-                    }
-                    else -> {
-                        Toast.makeText(this@MainActivity, "⚠️ ${response.status}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("QR_ERROR", "Error API: ${e.message}")
-                Toast.makeText(this@MainActivity, "Error conexión backend", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-        fetchEventos()
-
-        // BOTÓN GESTIÓN (ÍCONO LÁPIZ)
         findViewById<ImageButton>(R.id.btn_gestion_eventos).setOnClickListener { view ->
             isEditModeActive = !isEditModeActive
-            // Cambia el color del icono para indicar si el modo edición está activo
-            val color = if (isEditModeActive) Color.RED else Color.WHITE
-            (view as ImageButton).setColorFilter(color)
-
+            (view as ImageButton).setColorFilter(if (isEditModeActive) Color.RED else Color.WHITE)
             updateAdaptersEditMode()
-            Toast.makeText(this, if(isEditModeActive) "Modo Edición Activado" else "Modo Vista Activado", Toast.LENGTH_SHORT).show()
         }
 
-        // BOTÓN ABRIR FORMULARIO (NUEVO EVENTO)
-        findViewById<Button>(R.id.btnAbrirFormulario).setOnClickListener {
-            openEventDialog(null)
-        }
+        findViewById<Button>(R.id.btnAbrirFormulario).setOnClickListener { openEventDialog(null) }
     }
 
     private fun setupToolbarAndDrawer() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        // QUITAR TÍTULO DUPLICADO
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         drawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-
-        toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
+        toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        toggle.drawerArrowDrawable.color = Color.WHITE
         drawerLayout.addDrawerListener(toggle)
-        toggle.drawerArrowDrawable.color = getColor(android.R.color.white)
+        toggle.syncState()
 
         navView.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_home -> fetchEventos()
-                R.id.nav_tickets -> startActivity(Intent(this, TicketWallet::class.java))
-            }
+            if (it.itemId == R.id.nav_tickets) startActivity(Intent(this, TicketWallet::class.java))
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
+    }
 
-        // ACCESO AL CARRITO
-        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
-            startActivity(Intent(this, CartActivity::class.java))
+    private fun fetchEventos() {
+        lifecycleScope.launch {
+            try {
+                val lista = RetrofitClient.instance.getEventos()
+                setupAdapters(lista)
+            } catch (e: Exception) {
+                Log.e("API_ERROR", "Error al obtener eventos: ${e.message}")
+                if (e.message?.contains("401") == true) {
+                    Toast.makeText(this@MainActivity, "Error 401: Revisa el BackendApplication corregido.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
+    }
+
+    private fun setupAdapters(lista: List<Event>) {
+        val onEdit = { e: Event -> openEventDialog(e) }
+        val onDelete = { e: Event -> confirmDelete(e) }
+
+        // Si la base de datos está vacía, estas listas estarán vacías
+        destacadosRecycler.adapter = EventAdapter(lista.filter { it.categoria?.uppercase() == "DESTACADO" }, onEdit, onDelete)
+        actualesRecycler.adapter = EventAdapter(lista.filter { it.categoria?.uppercase() == "ACTUAL" }, onEdit, onDelete)
+        internacionalesRecycler.adapter = EventAdapter(lista.filter { it.categoria?.uppercase() == "INTERNACIONAL" }, onEdit, onDelete)
+
+        updateAdaptersEditMode()
     }
 
     private fun setupRecyclerViews() {
@@ -147,98 +126,49 @@ class MainActivity : AppCompatActivity() {
         internacionalesRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 
-    private fun fetchEventos() {
-        lifecycleScope.launch {
-            try {
-                val lista = RetrofitClient.instance.getEventos()
-                setupAdapters(lista)
-            } catch (e: Exception) {
-                Log.e("API_ERROR", e.message ?: "Error desconocido")
-                Toast.makeText(this@MainActivity, "Error de conexión con el servidor", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun setupAdapters(lista: List<Event>) {
-        val onEdit = { e: Event -> openEventDialog(e) }
-        val onDelete = { e: Event -> confirmDelete(e) }
-
-        // Filtrado por categorías según la API
-        destacadosRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("DESTACADO", true) }, onEdit, onDelete)
-        actualesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("ACTUAL", true) }, onEdit, onDelete)
-        internacionalesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("INTERNACIONAL", true) }, onEdit, onDelete)
-
-        updateAdaptersEditMode()
-    }
-
     private fun updateAdaptersEditMode() {
-        // Notifica a los adaptadores si deben mostrar u ocultar los botones de editar/borrar
-        (destacadosRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
-        (actualesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
-        (internacionalesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
-    }
-
-
-    private fun setupAdapters(lista: List<Event>) {
-        val onEdit = { e: Event -> openEventDialog(e) }
-        val onDelete = { e: Event -> confirmDelete(e) }
-
-        // Filtrado por categorías según la API
-        destacadosRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("DESTACADO", true) }, onEdit, onDelete)
-        actualesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("ACTUAL", true) }, onEdit, onDelete)
-        internacionalesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("INTERNACIONAL", true) }, onEdit, onDelete)
-
-        updateAdaptersEditMode()
-    }
-
-    private fun updateAdaptersEditMode() {
-        // Notifica a los adaptadores si deben mostrar u ocultar los botones de editar/borrar
         (destacadosRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
         (actualesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
         (internacionalesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
     }
 
     private fun openEventDialog(event: Event?) {
-        // Se llama al diálogo de creación/edición pasándole la función de refresco
-        val dialog = CrearEventoDialogFragment(
-            eventoParaEditar = event,
-            onEventoGuardado = { fetchEventos() }
-        )
-        dialog.show(supportFragmentManager, "EventDialog")
+        CrearEventoDialogFragment(event) { fetchEventos() }.show(supportFragmentManager, "EventDialog")
     }
 
     private fun confirmDelete(event: Event) {
         AlertDialog.Builder(this)
-            .setTitle("Confirmar eliminación")
-            .setMessage("¿Estás seguro de que deseas eliminar '${event.nombre}'?")
+            .setTitle("Eliminar Evento")
+            .setMessage("¿Estás seguro de eliminar ${event.nombre}?")
             .setPositiveButton("Eliminar") { _, _ ->
                 lifecycleScope.launch {
                     try {
-                        val resp = RetrofitClient.instance.eliminarEvento(event.id ?: 0L)
-                        if (resp.isSuccessful) {
-                            Toast.makeText(this@MainActivity, "Evento eliminado", Toast.LENGTH_SHORT).show()
-                            fetchEventos() // Refresca la lista tras borrar
-                        }
+                        RetrofitClient.instance.eliminarEvento(event.id ?: 0L)
+                        fetchEventos()
                     } catch (e: Exception) {
-                        Log.e("DELETE_ERROR", e.message ?: "Error")
-                        Toast.makeText(this@MainActivity, "Error al eliminar evento", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Error al eliminar: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
+            }.setNegativeButton("Cancelar", null).show()
+    }
+
+    private fun validarQrEnBackend(qrCode: String) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.instance.validarQr(qrCode)
+                if (response.status == "VALIDO") {
+                    mostrarResultadoValidacion("✅ Ticket Válido", "El ticket ha sido verificado correctamente.")
+                } else {
+                    mostrarResultadoValidacion("❌ Ticket Inválido", "Motivo: ${response.message}")
+                }
+            } catch (e: Exception) {
+                Log.e("QR_ERROR", "Fallo al validar: ${e.message}")
+                Toast.makeText(this@MainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        toggle.syncState()
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
         }
+    }
+
+    private fun mostrarResultadoValidacion(titulo: String, mensaje: String) {
+        AlertDialog.Builder(this).setTitle(titulo).setMessage(mensaje).setPositiveButton("Aceptar", null).show()
     }
 }

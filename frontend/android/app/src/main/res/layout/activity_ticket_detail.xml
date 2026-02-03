@@ -18,7 +18,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Detalles del evento"
+                android:text="Detalles del ticket"
                 android:textColor="#FFFFFF"
                 android:textSize="22sp"
                 android:textStyle="bold"/>
@@ -30,7 +30,7 @@
             android:layout_height="200dp"
             android:scaleType="centerCrop"
             android:contentDescription="Imagen del evento"
-            android:src="@drawable/maluma"/>
+            android:src="@android:drawable/ic_menu_gallery"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,23 +84,13 @@
 
             <ImageView
                 android:id="@+id/imgQr"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:contentDescription="Código QR"
-                android:src="@drawable/qr"/>
-            <!-- 🆕 BOTÓN ESCANEAR - AGREGAR ANTES DEL CIERRE -->
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="🔍 ESCANEAR QR"
-                android:textSize="18sp"
-                android:textColor="@android:color/white"
-                android:background="#4CAF50"
-                android:layout_margin="16dp"
-                android:layout_gravity="center" />
-
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:contentDescription="Código QR del ticket"
+                android:src="@android:drawable/ic_menu_camera"/>
 
         </LinearLayout>
     </LinearLayout>
