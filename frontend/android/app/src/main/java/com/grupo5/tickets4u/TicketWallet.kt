@@ -16,7 +16,7 @@ class TicketWallet : AppCompatActivity() {
         val rvTickets = findViewById<RecyclerView>(R.id.rvTickets)
         rvTickets.layoutManager = LinearLayoutManager(this)
 
-        // Eventos de ejemplo (usando Event real)
+/*        // Eventos de ejemplo (usando Event real)
         val evento1 = Event(
             id = 1,
             idAdmin = 101,
@@ -59,6 +59,6 @@ class TicketWallet : AppCompatActivity() {
             evento2.id!! to evento2
         )
 
-        rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)
+        rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)*/
     }
 }

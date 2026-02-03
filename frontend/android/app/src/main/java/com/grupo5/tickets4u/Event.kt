@@ -14,5 +14,5 @@ data class Event(
     @SerializedName("aforo") val aforo: Int,
     @SerializedName("foto") val foto: String,
     @SerializedName("categoria") val categoria: String, // "ACTUAL", "DESTACADO" o "INTERNACIONAL"
-    @SerializedName("idAdmin") val idAdmin: Int = 1
+    @SerializedName("idAdmin")  val idAdmin: Usuario?
 )

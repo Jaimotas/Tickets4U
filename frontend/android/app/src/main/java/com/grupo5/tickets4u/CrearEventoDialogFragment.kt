@@ -69,7 +69,9 @@ class CrearEventoDialogFragment : DialogFragment() {
                 direccion = view.findViewById<EditText>(R.id.etDireccion).text.toString(),
                 aforo = aforoStr.toInt(),
                 foto = view.findViewById<EditText>(R.id.etFoto).text.toString(),
-                categoria = spinner.selectedItem.toString()
+                categoria = spinner.selectedItem.toString(),
+                id = TODO(),
+                idAdmin = TODO()
             )
 
             enviarEvento(evento)
