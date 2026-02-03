@@ -3,7 +3,7 @@ package com.grupo5.tickets4u
 import com.google.gson.annotations.SerializedName
 
 data class Event(
-    // Cambiado a Long? para evitar errores de mismatch con la API
+    // id opcional para evitar errores con la API
     @SerializedName("id") val id: Long? = null,
 
     @SerializedName("nombre") val nombre: String,
@@ -16,5 +16,10 @@ data class Event(
     @SerializedName("aforo") val aforo: Int,
     @SerializedName("foto") val foto: String,
     @SerializedName("categoria") val categoria: String, // "ACTUAL", "DESTACADO" o "INTERNACIONAL"
-    @SerializedName("idAdmin") val idAdmin: Int = 1
+    @SerializedName("idAdmin") val idAdmin: Int = 1,
+
+    // NUEVOS CAMPOS: estadísticas que vienen en EventoDto
+    @SerializedName("ticketsDisponibles") val ticketsDisponibles: Int? = null,
+    @SerializedName("ticketsVendidos") val ticketsVendidos: Int? = null,
+    @SerializedName("ingresos") val ingresos: Double? = null
 )
