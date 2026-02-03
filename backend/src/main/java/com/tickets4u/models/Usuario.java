@@ -22,7 +22,7 @@ public class Usuario {
     private Rol rol;
     
     public enum Rol {
-        ADMIN, CLIENTE
+       admin,cliente
     }
     
     public Usuario() {}
@@ -35,7 +35,6 @@ public class Usuario {
     }
     
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
     
     public String getNombreUsuario() { return nombreUsuario; }
     public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }

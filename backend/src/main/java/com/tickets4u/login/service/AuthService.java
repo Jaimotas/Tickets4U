@@ -1,14 +1,10 @@
 package com.tickets4u.login.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.tickets4u.login.DTO.AuthResponse;
-import com.tickets4u.login.DTO.LoginRequest;
-import com.tickets4u.login.DTO.RegisterRequest;
-import com.tickets4u.login.repository.UsuarioLoginRepository;
 import com.tickets4u.models.Usuario;
+import com.tickets4u.models.Usuario.Rol;
+import com.tickets4u.login.repository.UsuarioLoginRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
@@ -17,41 +13,31 @@ public class AuthService {
     private UsuarioLoginRepository usuarioRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtService jwtService;
 
-    public void register(RegisterRequest request) {
+    public LoginResponse login(String email, String contrasena) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya está registrado");
+        if (!usuario.getContrasena().equals(contrasena)) {
+            throw new RuntimeException("Contraseña incorrecta");
         }
 
-        Usuario usuario = new Usuario();
-        usuario.setNombreUsuario(request.getNombreUsuario());
-        usuario.setEmail(request.getEmail());
-        usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
+        String token = jwtService.generateToken(usuario.getEmail());
 
-        // 🔒 SIEMPRE CLIENTE
-        usuario.setRol(Usuario.Rol.CLIENTE);
-
-        usuarioRepository.save(usuario);
+        return new LoginResponse(token, usuario);
     }
 
-    public AuthResponse login(LoginRequest request) {
+    public static class LoginResponse {
+        private String token;
+        private Usuario usuario;
 
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciales incorrectas"));
-
-        if (!passwordEncoder.matches(
-                request.getContrasena(),
-                usuario.getContrasena())) {
-            throw new RuntimeException("Credenciales incorrectas");
+        public LoginResponse(String token, Usuario usuario) {
+            this.token = token;
+            this.usuario = usuario;
         }
 
-        String token = jwtService.generateToken(usuario);
-
-        return new AuthResponse(token, usuario.getRol().name());
+        public String getToken() { return token; }
+        public Usuario getUsuario() { return usuario; }
     }
 }

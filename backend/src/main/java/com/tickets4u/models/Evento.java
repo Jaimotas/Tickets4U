@@ -49,10 +49,11 @@ public class Evento {
     
     public Evento() {}
     
-    public Evento(String nombre, String descripcion, LocalDateTime fechaInicio, 
+    public Evento(Usuario admin, String nombre, String descripcion, LocalDateTime fechaInicio, 
                   LocalDateTime fechaFin, String ciudad, String ubicacion, 
                   String direccion, Integer aforo, String foto, Categoria categoria) {
-        this.nombre = nombre;
+    	this.idAdmin=admin;
+    	this.nombre = nombre;
         this.descripcion = descripcion;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;

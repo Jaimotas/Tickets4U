@@ -1,45 +1,35 @@
 package com.tickets4u.login.service;
 
-import java.util.Date;
-
-import org.springframework.stereotype.Service;
-
-import com.tickets4u.models.Usuario;
-
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Service;
+
+import java.security.Key;
+import java.util.Date;
 
 @Service
 public class JwtService {
 
-    private final String SECRET_KEY = "tickets4u_secret_key_123456789";
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24h
+    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(Usuario usuario) {
+    public String generateToken(String email) {
         return Jwts.builder()
-                .setSubject(usuario.getEmail())
-                .claim("rol", usuario.getRol().name())
+                .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(
-                    new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)
-                )
-                .signWith(
-                    Keys.hmacShaKeyFor(SECRET_KEY.getBytes()),
-                    SignatureAlgorithm.HS256
-                )
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key)
                 .compact();
     }
-    public String extractEmail(String token) {
-        return getClaims(token).getSubject();
-    }
 
-    private Claims getClaims(String token) {
+    public String extractEmail(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY.getBytes())
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody();
+                .getBody()
+                .getSubject();
     }
-
 }
+	
