@@ -1,7 +1,8 @@
 package com.tickets4u.events.controllers;
 
-import com.tickets4u.events.models.Evento;
 import com.tickets4u.events.repositories.EventoRepository;
+import com.tickets4u.models.Evento;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,7 @@ public class EventoController {
             evento.setDireccion(eventoDetails.getDireccion());
             evento.setAforo(eventoDetails.getAforo());
             evento.setFoto(eventoDetails.getFoto());
+            evento.setCategoria(eventoDetails.getCategoria());
             return eventoRepository.save(evento);
         }).orElseThrow(() -> new RuntimeException("Evento no encontrado"));
     }

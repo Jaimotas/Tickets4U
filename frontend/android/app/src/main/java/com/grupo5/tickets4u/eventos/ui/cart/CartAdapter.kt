@@ -1,4 +1,4 @@
-package com.grupo5.tickets4u.ui.cart
+package com.grupo5.tickets4u.eventos.ui.cart
 
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +42,17 @@ class CartAdapter(
             txtEvento.text = item.nombreEvento
             txtPrecio.text = "${item.precio}€ x ${item.cantidad}"
 
-            btnMas.setOnClickListener { viewModel.addItem(item) }
+            // Lógica: Ocultar botón "+" si ya hay 8 entradas
+            if (item.cantidad >= 8) {
+                btnMas.visibility = View.INVISIBLE
+            } else {
+                btnMas.visibility = View.VISIBLE
+            }
+
+            btnMas.setOnClickListener {
+                if (item.cantidad < 8) viewModel.addItem(item)
+            }
+
             btnMenos.setOnClickListener { viewModel.removeItem(item) }
         }
     }

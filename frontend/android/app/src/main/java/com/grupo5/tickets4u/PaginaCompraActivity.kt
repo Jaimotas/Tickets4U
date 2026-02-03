@@ -1,17 +1,19 @@
 package com.grupo5.tickets4u
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
+import com.grupo5.tickets4u.eventos.ui.cart.CartManager
+import com.grupo5.tickets4u.model.TicketItem
 
 class PaginaCompraActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ocultar la barra superior si quieres un diseño más limpio
         supportActionBar?.hide()
         setContentView(R.layout.activity_pagina_compra)
 
@@ -24,53 +26,89 @@ class PaginaCompraActivity : AppCompatActivity() {
         val autoCompleteEntradas = findViewById<AutoCompleteTextView>(R.id.autoCompleteEntradas)
         val btnFinalizar = findViewById<MaterialButton>(R.id.btnFinalizarCompra)
 
-        // 2. Botón Volver
-        btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        // 2. Recibir datos del Intent
+        val eventoId = intent.getLongExtra("EVENTO_ID", -1)
+        val titulo = intent.getStringExtra("TITULO") ?: "Evento"
+        val fecha = intent.getStringExtra("FECHA") ?: "Fecha pendiente"
+        val lugar = intent.getStringExtra("LUGAR") ?: "Lugar pendiente"
+        val fotoUrl = intent.getStringExtra("IMAGEN_URL")
 
-        // 3. Recibir datos del Intent (enviados desde EventAdapter)
-        val titulo = intent.getStringExtra("EVENTO_NOMBRE") ?: "Evento desconocido"
-        val fecha = intent.getStringExtra("EVENTO_FECHA") ?: "Fecha no disponible"
-        val lugar = intent.getStringExtra("EVENTO_UBICACION") ?: "Lugar no especificado"
-        val fotoUrl = intent.getStringExtra("EVENTO_FOTO") // URL del backend
-
-        // 4. Asignar datos a la UI
+        // 3. Asignar datos a la UI
         tvTitulo.text = titulo
         tvFecha.text = fecha
         tvLugar.text = lugar
 
-        // Cargar imagen con Glide (soporta URLs de internet)
         Glide.with(this)
             .load(fotoUrl)
             .placeholder(android.R.drawable.ic_menu_gallery)
-            .error(R.drawable.maluma) // Imagen por defecto si falla
+            .error(R.drawable.maluma)
             .into(ivImagen)
 
-        // 5. Configurar el Selector de cantidad (Dropdown)
-        val opciones = arrayOf("1 entrada", "2 entradas", "3 entradas", "4 entradas", "5 entradas")
+        // 4. Configurar el Dropdown de cantidad (Máximo 8)
+        val opciones = arrayOf(
+            "1 entrada", "2 entradas", "3 entradas", "4 entradas",
+            "5 entradas", "6 entradas", "7 entradas", "8 entradas"
+        )
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, opciones)
         autoCompleteEntradas.setAdapter(adapter)
 
-        // 6. Lógica de Finalizar Compra
+        // 5. Botón Volver
+        btnBack.setOnClickListener { finish() }
+
+        // 6. Lógica de añadir al Carrito con COMPROBACIÓN DE LÍMITE
         btnFinalizar.setOnClickListener {
-            val seleccion = autoCompleteEntradas.text.toString()
+            val seleccionStr = autoCompleteEntradas.text.toString()
+            val cantidadSeleccionada = seleccionStr.filter { it.isDigit() }.toIntOrNull() ?: 1
+            val precioSimulado = 25.0
 
-            if (seleccion.isEmpty()) {
-                Toast.makeText(this, "Por favor, selecciona cuántas entradas quieres", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            // --- COMPROBACIÓN EN EL CARRITO ---
+            val itemsEnCarrito = CartManager.getItems()
+            val itemExistente = itemsEnCarrito.find { it.id == eventoId.toString() }
+            val cantidadActual = itemExistente?.cantidad ?: 0
 
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("¡Reserva confirmada!")
-            builder.setMessage("Has reservado $seleccion para:\n$titulo\n\nPróximo paso: Realizar el pago.")
-            builder.setPositiveButton("Ir al pago") { dialog, _ ->
-                dialog.dismiss()
-                // Aquí podrías iniciar PaymentActivity si lo deseas
-                finish()
+            val totalResultante = cantidadActual + cantidadSeleccionada
+
+            if (totalResultante > 8) {
+                val disponibles = 8 - cantidadActual
+                val mensaje = if (disponibles > 0) {
+                    "No puedes añadir $cantidadSeleccionada entradas. Ya tienes $cantidadActual en el carrito. Solo puedes añadir $disponibles más."
+                } else {
+                    "Ya tienes el máximo de 8 entradas para este evento en tu carrito."
+                }
+
+                AlertDialog.Builder(this)
+                    .setTitle("Límite alcanzado")
+                    .setMessage(mensaje)
+                    .setPositiveButton("Entendido", null)
+                    .show()
+
+                return@setOnClickListener // Detiene la ejecución para que no se añadan
             }
-            builder.setNegativeButton("Cancelar", null)
-            builder.show()
+            // --- FIN COMPROBACIÓN ---
+
+            AlertDialog.Builder(this)
+                .setTitle("¿Añadir al carrito?")
+                .setMessage("Vas a añadir $cantidadSeleccionada entradas para $titulo.\nTotal: ${precioSimulado * cantidadSeleccionada}€")
+                .setPositiveButton("Añadir") { _, _ ->
+
+                    val nuevoTicket = TicketItem(
+                        id = eventoId.toString(),
+                        nombreEvento = titulo,
+                        precio = precioSimulado,
+                        cantidad = cantidadSeleccionada,
+                        imagenUrl = fotoUrl
+                    )
+
+                    CartManager.addItem(nuevoTicket)
+                    Toast.makeText(this, "Añadido al carrito", Toast.LENGTH_SHORT).show()
+
+                    val intentMain = Intent(this, MainActivity::class.java)
+                    intentMain.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intentMain)
+                    finish()
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
     }
 }

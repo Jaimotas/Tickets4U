@@ -21,7 +21,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tickets4U"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"> <activity
+        android:name=".RegisterActivity"
+        android:exported="false" />
 
         <activity
             android:name=".RegisterActivity"
@@ -32,7 +34,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,7 +63,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true" />
 
         <activity

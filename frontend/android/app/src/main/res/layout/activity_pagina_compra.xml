@@ -100,6 +100,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                app:startIconDrawable="@drawable/ic_baseline_local_activity_24"
+                app:startIconTint="#2563EB"
                 app:layout_constraintTop_toBottomOf="@+id/tvPregunta">
 
                 <AutoCompleteTextView
@@ -107,6 +109,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
+                    android:paddingStart="48dp"
                     android:text="1 entrada"
                     android:textColor="#0F172A" />
             </com.google.android.material.textfield.TextInputLayout>

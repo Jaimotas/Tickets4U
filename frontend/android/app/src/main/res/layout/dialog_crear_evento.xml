@@ -1,42 +1,72 @@
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="20dp">
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:fillViewport="true">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginBottom="20dp">
+
+            <ImageButton
+                android:id="@+id/btnVolverDialog"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Cerrar" />
 
             <TextView
+                android:id="@+id/tvTituloDialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Crear Nuevo Evento"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:layout_gravity="center"
-                android:layout_marginBottom="20dp"/>
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
 
-            <EditText android:id="@+id/etNombre" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre del evento" />
-            <EditText android:id="@+id/etDescripcion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Descripción" android:inputType="textMultiLine" />
-            <EditText android:id="@+id/etCiudad" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Ciudad" />
-            <EditText android:id="@+id/etUbicacion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Lugar (ej: WiZink Center)" />
-            <EditText android:id="@+id/etDireccion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Dirección exacta" />
-            <EditText android:id="@+id/etAforo" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Aforo" android:inputType="number" />
-            <EditText android:id="@+id/etFoto" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="URL de la foto" />
+        <EditText android:id="@+id/etNombre" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre del evento" />
+        <EditText android:id="@+id/etDescripcion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Descripción" android:inputType="textMultiLine" />
+        <EditText android:id="@+id/etCiudad" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Ciudad" />
+        <EditText android:id="@+id/etUbicacion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Lugar (ej: WiZink Center)" />
+        <EditText android:id="@+id/etDireccion" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Dirección exacta" />
+        <EditText android:id="@+id/etAforo" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Aforo" android:inputType="number" />
+        <EditText android:id="@+id/etFoto" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="URL de la foto" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Categoría" android:layout_marginTop="10dp"/>
-            <Spinner android:id="@+id/spinnerCategoria" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Categoría" android:layout_marginTop="10dp" android:textStyle="bold"/>
+        <Spinner android:id="@+id/spinnerCategoria" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp"/>
 
-            <Button android:id="@+id/btnFechaInicio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Inicio" android:layout_marginTop="10dp" />
-            <Button android:id="@+id/btnFechaFin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Elegir Fecha Fin" />
+        <Button
+            android:id="@+id/btnFechaInicio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Elegir Fecha Inicio"
+            android:layout_marginTop="10dp" />
 
-            <Button
-                android:id="@+id/btnCrear"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="CREAR EVENTO"
-                android:layout_marginTop="20dp"
-                android:backgroundTint="@color/blue"/>
-        </LinearLayout>
-    </ScrollView>
+        <Button
+            android:id="@+id/btnFechaFin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Elegir Fecha Fin" />
+
+        <Button
+            android:id="@+id/btnCrear"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="CREAR EVENTO"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+</ScrollView>
