@@ -85,13 +85,15 @@ class CrearEventoDialogFragment(
                 descripcion = etDesc.text.toString(),
                 fechaInicio = fechaInicioIso,
                 fechaFin = fechaFinIso,
-                ciudad = etCiudad.text.toString(),
-                ubicacion = etUbicacion.text.toString(),
-                direccion = etDireccion.text.toString(),
-                aforo = aforoVal,
-                foto = etFoto.text.toString(),
+                ciudad = view.findViewById<EditText>(R.id.etCiudad).text.toString(),
+                ubicacion = view.findViewById<EditText>(R.id.etUbicacion).text.toString(),
+                direccion = view.findViewById<EditText>(R.id.etDireccion).text.toString(),
+                aforo = aforoStr.toInt(),
+                foto = view.findViewById<EditText>(R.id.etFoto).text.toString(),
                 categoria = spinner.selectedItem.toString(),
-                idAdmin = 1
+                id = TODO(),
+                idAdmin = TODO()
+
             )
 
             // Llamamos a la función de enviar/editar

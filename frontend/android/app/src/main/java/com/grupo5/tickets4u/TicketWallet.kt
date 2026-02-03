@@ -58,6 +58,6 @@ class TicketWallet : AppCompatActivity() {
             evento2.id!!.toInt() to evento2
         )
 
-        rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)
+        rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)*/
     }
 }

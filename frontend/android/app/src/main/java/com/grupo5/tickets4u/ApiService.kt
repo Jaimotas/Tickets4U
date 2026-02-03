@@ -1,22 +1,25 @@
 package com.grupo5.tickets4u
 
-import retrofit2.Response // Importante para que funcione Response<T>
+import com.grupo5.tickets4u.login.LoginRequest
+import com.grupo5.tickets4u.login.LoginResponse
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.* // Importa GET, POST, PUT, DELETE, Path, Body, etc.
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import com.grupo5.tickets4u.login.*
 
 interface ApiService {
+
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): LoginResponse
     @GET("eventos")
     suspend fun getEventos(): List<Event>
 
     @POST("eventos")
-    suspend fun crearEvento(@Body evento: Event): Response<Event>
 
-    @PUT("eventos/{id}")
-    suspend fun editarEvento(@Path("id") id: Long, @Body evento: Event): Response<Event>
-
-    @DELETE("eventos/{id}")
-    suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
+    suspend fun crearEvento(@Body evento: Event): retrofit2.Response<Event>
 }
 
 object RetrofitClient {
