@@ -1,4 +1,4 @@
-	package com.tickets4u.models;
+package com.tickets4u.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

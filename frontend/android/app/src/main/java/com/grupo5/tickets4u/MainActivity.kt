@@ -5,6 +5,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +31,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var actualesRecycler: RecyclerView
     private lateinit var internacionalesRecycler: RecyclerView
 
+    // 🚀 Nuevo: launcher para recibir el QR escaneado
+    private val qrScannerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val qrCode = result.data?.getStringExtra("QR_CODE")
+            qrCode?.let {
+                validarQrEnBackend(it)
+            }
+        }
+    }
     private var isEditModeActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +50,42 @@ class MainActivity : AppCompatActivity() {
 
         setupToolbarAndDrawer()
         setupRecyclerViews()
+        setupQrScanner()
+        setupCrearEventoButton()
+        fetchEventos()
+
+    // ✅ Abre el escáner QR (tu QrScannerActivity)
+    private fun setupQrScanner() {
+        findViewById<Button>(R.id.btnScanQr).setOnClickListener {
+            val intent = Intent(this, QrScannerActivity::class.java)
+            qrScannerLauncher.launch(intent)
+        }
+    }
+
+    // ✅ Mismo método de antes: valida con backend
+    private fun validarQrEnBackend(qrCode: String) {
+        lifecycleScope.launch {
+            try {
+                Log.d("QR_VALIDATION", "Validando QR: $qrCode")
+                val response = RetrofitClient.instance.validarQr(qrCode)
+
+                when {
+                    response.status == "VALIDO" -> {
+                        Toast.makeText(this@MainActivity, "✅ Ticket válido", Toast.LENGTH_LONG).show()
+                    }
+                    response.status == "INVALIDO" -> {
+                        Toast.makeText(this@MainActivity, "❌ Ticket inválido", Toast.LENGTH_LONG).show()
+                    }
+                    else -> {
+                        Toast.makeText(this@MainActivity, "⚠️ ${response.status}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("QR_ERROR", "Error API: ${e.message}")
+                Toast.makeText(this@MainActivity, "Error conexión backend", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
         fetchEventos()
 
         // BOTÓN GESTIÓN (ÍCONO LÁPIZ)
@@ -127,6 +178,26 @@ class MainActivity : AppCompatActivity() {
         (internacionalesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
     }
 
+
+    private fun setupAdapters(lista: List<Event>) {
+        val onEdit = { e: Event -> openEventDialog(e) }
+        val onDelete = { e: Event -> confirmDelete(e) }
+
+        // Filtrado por categorías según la API
+        destacadosRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("DESTACADO", true) }, onEdit, onDelete)
+        actualesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("ACTUAL", true) }, onEdit, onDelete)
+        internacionalesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("INTERNACIONAL", true) }, onEdit, onDelete)
+
+        updateAdaptersEditMode()
+    }
+
+    private fun updateAdaptersEditMode() {
+        // Notifica a los adaptadores si deben mostrar u ocultar los botones de editar/borrar
+        (destacadosRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
+        (actualesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
+        (internacionalesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
+    }
+
     private fun openEventDialog(event: Event?) {
         // Se llama al diálogo de creación/edición pasándole la función de refresco
         val dialog = CrearEventoDialogFragment(
@@ -161,5 +232,13 @@ class MainActivity : AppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

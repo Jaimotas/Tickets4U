@@ -2,9 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permisos (SIEMPRE FUERA DE <application>) -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Si realmente necesitas esto, lo dejas; si no, puedes quitarlo -->
     <uses-sdk tools:overrideLibrary="com.android.car.ui" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +26,10 @@
         android:exported="false" />
 
         <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".LoadingActivity"
             android:exported="false" />
 
@@ -33,6 +43,8 @@
         </activity>
 
         <activity
+            android:name=".ui.cart.CartActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
             android:name=".eventos.ui.cart.CartActivity"
             android:exported="false"/>
 
@@ -59,13 +71,21 @@
         <activity
             android:name=".PaginaCompraActivity"
             android:exported="false" />
+
         <activity
             android:name=".TicketDetailActivity"
             android:exported="false" />
+
         <activity
             android:name=".TicketWallet"
             android:exported="false" />
 
+        <!-- QrScannerActivity: ajusta el nombre según el paquete real -->
+        <!-- Si QrScannerActivity está en com.grupo5.tickets4u -->
+        <activity
+            android:name=".QrScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Tickets4U" />
     </application>
 
 </manifest>
