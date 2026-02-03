@@ -18,20 +18,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Desactivar CSRF para permitir POST/PUT desde el emulador
+            // Desactivar CSRF (Crucial para que Android pueda hacer POST/PUT)
             .csrf(csrf -> csrf.disable())
             
-            // 2. Activar y configurar CORS (Vital para Android)
+            // Configurar CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // 3. Permisos de rutas
+            // Gestión de permisos
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/**").permitAll() 
-                .requestMatchers("/h2-console/**").permitAll()
-                .anyRequest().permitAll() // Cambiamos temporalmente a permitAll para pruebas
+                // Si usas Spring Boot 3 usa requestMatchers, si es 2.x usa antMatchers
+                .requestMatchers("/api/**", "/h2-console/**").permitAll() 
+                .anyRequest().permitAll() 
             )
             
-            // 4. Permitir frames para H2
+            // Necesario para ver la consola H2 en el navegador
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
         
         return http.build();
@@ -40,10 +40,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // Permitir todos los origenes
+        configuration.setAllowedOrigins(Arrays.asList("*")); // Permitir el emulador de Android
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
-        configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Permitir todos los headers
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

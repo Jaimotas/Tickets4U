@@ -2,22 +2,11 @@ package com.tickets4u;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication(scanBasePackages = {
-    "com.tickets4u.events",
-    "com.tickets4u.tickets",
-    "com.tickets4u.models",
-    "com.tickets4u.descuentos"
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication
-@EnableJpaRepositories(basePackages = {
-    "com.tickets4u.events.repositories",
-    "com.tickets4u.pedidos.repositories",
-    "com.tickets4u.tickets.repositories"
-})
+@SpringBootApplication(scanBasePackages = "com.tickets4u")
+@EnableJpaRepositories(basePackages = "com.tickets4u")
 public class BackendApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(BackendApplication.class, args);
     }

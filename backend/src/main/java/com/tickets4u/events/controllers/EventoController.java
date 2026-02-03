@@ -2,12 +2,11 @@ package com.tickets4u.events.controllers;
 
 import com.tickets4u.events.repositories.EventoRepository;
 import com.tickets4u.models.Evento;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -23,17 +22,23 @@ public class EventoController {
     }
     
     @GetMapping("/{id}")
-    public Optional<Evento> getEventoById(@PathVariable Long id) {
-        return eventoRepository.findById(id);
+    public ResponseEntity<Evento> getEventoById(@PathVariable Long id) {
+        return eventoRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping
-    public Evento createEvento(@RequestBody Evento evento) {
-        return eventoRepository.save(evento);
+    public ResponseEntity<Evento> createEvento(@RequestBody Evento evento) {
+        try {
+            return ResponseEntity.ok(eventoRepository.save(evento));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
     
     @PutMapping("/{id}")
-    public Evento updateEvento(@PathVariable Long id, @RequestBody Evento eventoDetails) {
+    public ResponseEntity<Evento> updateEvento(@PathVariable Long id, @RequestBody Evento eventoDetails) {
         return eventoRepository.findById(id).map(evento -> {
             evento.setNombre(eventoDetails.getNombre());
             evento.setDescripcion(eventoDetails.getDescripcion());
@@ -45,12 +50,16 @@ public class EventoController {
             evento.setAforo(eventoDetails.getAforo());
             evento.setFoto(eventoDetails.getFoto());
             evento.setCategoria(eventoDetails.getCategoria());
-            return eventoRepository.save(evento);
-        }).orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+            return ResponseEntity.ok(eventoRepository.save(evento));
+        }).orElse(ResponseEntity.notFound().build());
     }
     
     @DeleteMapping("/{id}")
-    public void deleteEvento(@PathVariable Long id) {
-        eventoRepository.deleteById(id);
+    public ResponseEntity<Void> deleteEvento(@PathVariable Long id) {
+        if (eventoRepository.existsById(id)) {
+            eventoRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
