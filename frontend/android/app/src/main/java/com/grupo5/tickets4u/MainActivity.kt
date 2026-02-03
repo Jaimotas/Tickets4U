@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    private var isEditModeActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,8 +86,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+        fetchEventos()
 
-    private fun setupCrearEventoButton() {
+        // BOTÓN GESTIÓN (ÍCONO LÁPIZ)
+        findViewById<ImageButton>(R.id.btn_gestion_eventos).setOnClickListener { view ->
+            isEditModeActive = !isEditModeActive
+            // Cambia el color del icono para indicar si el modo edición está activo
+            val color = if (isEditModeActive) Color.RED else Color.WHITE
+            (view as ImageButton).setColorFilter(color)
+
+            updateAdaptersEditMode()
+            Toast.makeText(this, if(isEditModeActive) "Modo Edición Activado" else "Modo Vista Activado", Toast.LENGTH_SHORT).show()
+        }
+
+        // BOTÓN ABRIR FORMULARIO (NUEVO EVENTO)
         findViewById<Button>(R.id.btnAbrirFormulario).setOnClickListener {
             openEventDialog(null)
         }
@@ -144,6 +158,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun setupAdapters(lista: List<Event>) {
+        val onEdit = { e: Event -> openEventDialog(e) }
+        val onDelete = { e: Event -> confirmDelete(e) }
+
+        // Filtrado por categorías según la API
+        destacadosRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("DESTACADO", true) }, onEdit, onDelete)
+        actualesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("ACTUAL", true) }, onEdit, onDelete)
+        internacionalesRecycler.adapter = EventAdapter(lista.filter { it.categoria.equals("INTERNACIONAL", true) }, onEdit, onDelete)
+
+        updateAdaptersEditMode()
+    }
+
+    private fun updateAdaptersEditMode() {
+        // Notifica a los adaptadores si deben mostrar u ocultar los botones de editar/borrar
+        (destacadosRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
+        (actualesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
+        (internacionalesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
+    }
+
 
     private fun setupAdapters(lista: List<Event>) {
         val onEdit = { e: Event -> openEventDialog(e) }

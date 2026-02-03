@@ -8,6 +8,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     "com.tickets4u.tickets",
     "com.tickets4u.models",
     "com.tickets4u.descuentos"
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+@SpringBootApplication
+@EnableJpaRepositories(basePackages = {
+    "com.tickets4u.events.repositories",
+    "com.tickets4u.pedidos.repositories",
+    "com.tickets4u.tickets.repositories"
 })
 public class BackendApplication {
 

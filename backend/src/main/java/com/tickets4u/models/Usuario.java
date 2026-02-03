@@ -19,7 +19,7 @@ public class Usuario {
     private Rol rol;
     
     public enum Rol {
-        admin, organizer, cliente
+        ADMIN, ORGANIZER, ATTENDEE
     }
     
     public Usuario() {}

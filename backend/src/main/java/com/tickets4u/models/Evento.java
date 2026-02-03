@@ -11,7 +11,7 @@ public class Evento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "id_admin")
+    @JoinColumn(name = "id_admin", nullable = false)
     private Long idAdmin;
     
     private String nombre;

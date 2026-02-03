@@ -45,6 +45,8 @@
         <activity
             android:name=".ui.cart.CartActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:name=".eventos.ui.cart.CartActivity"
+            android:exported="false"/>
 
         <activity
             android:name=".eventos.ui.payment.PaymentActivity"
