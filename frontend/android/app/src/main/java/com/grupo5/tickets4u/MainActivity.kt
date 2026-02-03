@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -27,14 +28,60 @@ class MainActivity : AppCompatActivity() {
     private lateinit var actualesRecycler: RecyclerView
     private lateinit var internacionalesRecycler: RecyclerView
 
+    // 🚀 Nuevo: launcher para recibir el QR escaneado
+    private val qrScannerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val qrCode = result.data?.getStringExtra("QR_CODE")
+            qrCode?.let {
+                validarQrEnBackend(it)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         setupToolbarAndDrawer()
         setupRecyclerViews()
+        setupQrScanner()
         setupCrearEventoButton()
         fetchEventos()
+    }
+
+    // ✅ Abre el escáner QR (tu QrScannerActivity)
+    private fun setupQrScanner() {
+        findViewById<Button>(R.id.btnScanQr).setOnClickListener {
+            val intent = Intent(this, QrScannerActivity::class.java)
+            qrScannerLauncher.launch(intent)
+        }
+    }
+
+    // ✅ Mismo método de antes: valida con backend
+    private fun validarQrEnBackend(qrCode: String) {
+        lifecycleScope.launch {
+            try {
+                Log.d("QR_VALIDATION", "Validando QR: $qrCode")
+                val response = RetrofitClient.instance.validarQr(qrCode)
+
+                when {
+                    response.status == "VALIDO" -> {
+                        Toast.makeText(this@MainActivity, "✅ Ticket válido", Toast.LENGTH_LONG).show()
+                    }
+                    response.status == "INVALIDO" -> {
+                        Toast.makeText(this@MainActivity, "❌ Ticket inválido", Toast.LENGTH_LONG).show()
+                    }
+                    else -> {
+                        Toast.makeText(this@MainActivity, "⚠️ ${response.status}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("QR_ERROR", "Error API: ${e.message}")
+                Toast.makeText(this@MainActivity, "Error conexión backend", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupCrearEventoButton() {
@@ -117,5 +164,13 @@ class MainActivity : AppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

@@ -2,9 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permisos (SIEMPRE FUERA DE <application>) -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- ✅ ESTA LÍNEA SOLUCIONA TODO -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Si realmente necesitas esto, lo dejas; si no, puedes quitarlo -->
     <uses-sdk tools:overrideLibrary="com.android.car.ui" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -20,47 +26,62 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
+
         <activity
             android:name=".LoadingActivity"
             android:exported="false" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".ui.cart.CartActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" /> <!-- Pago -->
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+
         <activity
             android:name=".eventos.ui.payment.PaymentActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+
         <activity
             android:name=".eventos.ui.payment.PaymentSuccessActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+
         <activity
             android:name=".eventos.ui.payment.PaymentLoadingActivity"
-            android:exported="false" /> 
+            android:exported="false" />
+
         <activity
             android:name=".DatosDeEventoActivity"
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true" />
+
         <activity
             android:name=".PaginaCompraActivity"
             android:exported="false" />
+
         <activity
             android:name=".TicketDetailActivity"
             android:exported="false" />
+
         <activity
             android:name=".TicketWallet"
             android:exported="false" />
 
+        <!-- QrScannerActivity: ajusta el nombre según el paquete real -->
+        <!-- Si QrScannerActivity está en com.grupo5.tickets4u -->
+        <activity
+            android:name=".QrScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Tickets4U" />
     </application>
 
 </manifest>
