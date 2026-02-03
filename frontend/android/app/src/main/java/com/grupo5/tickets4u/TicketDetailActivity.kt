@@ -1,5 +1,7 @@
 package com.grupo5.tickets4u
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
@@ -7,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class TicketDetailActivity : AppCompatActivity() {
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticket_detail)
@@ -28,8 +31,6 @@ class TicketDetailActivity : AppCompatActivity() {
         val tipoEntrada = intent.getStringExtra("tipo_entrada") ?: ""
         val estado = intent.getStringExtra("estado") ?: ""
         val foto = intent.getStringExtra("foto") ?: ""
-        // qr eliminado porque tu Event no tiene
-        // val qr = intent.getStringExtra("qr") ?: ""
 
         tvName.text = nombre
         tvDescription.text = descripcion
@@ -43,8 +44,9 @@ class TicketDetailActivity : AppCompatActivity() {
             if (imgResId != 0) imgEvent.setImageResource(imgResId)
         }
 
-        // QR eliminado, si quieres mostrar QR tendrás que usar Glide o crear un drawable de prueba
-        // val qrResId = resources.getIdentifier(qr, "drawable", packageName)
-        // if (qrResId != 0) imgQr.setImageResource(qrResId)
+        // 🆕 TOCA IMAGEN QR → ABRE CÁMARA (SIN BOTÓN)
+        imgQr.setOnClickListener {
+            startActivity(Intent(this, QrScannerActivity::class.java))
+        }
     }
 }

@@ -3,20 +3,27 @@ package com.grupo5.tickets4u
 import retrofit2.Response // Importante para que funcione Response<T>
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.* // Importa GET, POST, PUT, DELETE, Path, Body, etc.
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
+
+// ← NUEVO: Data class para respuesta QR
+data class QrResponse(
+    val status: String,
+    val message: String? = null
+)
 
 interface ApiService {
     @GET("eventos")
     suspend fun getEventos(): List<Event>
 
     @POST("eventos")
-    suspend fun crearEvento(@Body evento: Event): Response<Event>
+    suspend fun crearEvento(@Body evento: Event): retrofit2.Response<Event>
 
-    @PUT("eventos/{id}")
-    suspend fun editarEvento(@Path("id") id: Long, @Body evento: Event): Response<Event>
-
-    @DELETE("eventos/{id}")
-    suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
+    // ← NUEVO: Validación QR (tu backend puerto 9090)
+    @GET("tickets/validate")
+    suspend fun validarQr(@Query("qr") qrCode: String): QrResponse
 }
 
 object RetrofitClient {

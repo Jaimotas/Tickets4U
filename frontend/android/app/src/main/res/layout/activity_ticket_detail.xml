@@ -90,6 +90,18 @@
                 android:layout_marginTop="16dp"
                 android:contentDescription="Código QR"
                 android:src="@drawable/qr"/>
+            <!-- 🆕 BOTÓN ESCANEAR - AGREGAR ANTES DEL CIERRE -->
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="🔍 ESCANEAR QR"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                android:background="#4CAF50"
+                android:layout_margin="16dp"
+                android:layout_gravity="center" />
+
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
