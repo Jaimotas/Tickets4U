@@ -1,4 +1,4 @@
-package com.tickets4u.events;
+package com.tickets4u;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -12,8 +12,8 @@ public class Evento {
     private Long id;
     
     @ManyToOne
-    @Column(name = "id_admin", nullable = false)
-    private Long idAdmin;
+    @JoinColumn(name = "id_admin", nullable = false)
+    private Usuario idAdmin;
     
     private String nombre;
     private String descripcion;
@@ -49,10 +49,11 @@ public class Evento {
     
     public Evento() {}
     
-    public Evento(String nombre, String descripcion, LocalDateTime fechaInicio, 
+    public Evento(Usuario admin, String nombre, String descripcion, LocalDateTime fechaInicio, 
                   LocalDateTime fechaFin, String ciudad, String ubicacion, 
                   String direccion, Integer aforo, String foto, Categoria categoria) {
-        this.nombre = nombre;
+    	this.idAdmin=admin;
+    	this.nombre = nombre;
         this.descripcion = descripcion;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -68,8 +69,8 @@ public class Evento {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
-    public Long getIdAdmin() { return idAdmin; }
-    public void setIdAdmin(Long idAdmin) { this.idAdmin = idAdmin; }
+    public Usuario getIdAdmin() { return idAdmin; }
+    public void setIdAdmin(Usuario idAdmin) { this.idAdmin = idAdmin; }
     
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
