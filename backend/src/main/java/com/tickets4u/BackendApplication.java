@@ -1,4 +1,4 @@
-package com.tickets4u.events;
+package com.tickets4u;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(scanBasePackages = {
     "com.tickets4u.events",
     "com.tickets4u.tickets",
+    "com.tickets4u.models",
     "com.tickets4u.descuentos"
 })
 public class BackendApplication {

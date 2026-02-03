@@ -32,39 +32,30 @@ public class Ticket {
     private String tipoEntrada;
 
     public enum Estado {
-        usado, activo, cancelado
+        usado, activo, cancelado  // ← FALTA ;
+    }  // ← PUNTO Y COMA AQUÍ
+    
+    // GETTERS
+    public Integer getId() { return id; }
+    public Usuario getCliente() { return cliente; }
+    public Pedido getPedido() { return pedido; }
+    public Evento getEvento() { return evento; }
+    public String getQr() { return qr; }
+    public Estado getEstado() { return estado; }
+    public String getTipoEntrada() { return tipoEntrada; }
+    
+    // ← SETTERS FALTANTES
+    public void setId(Integer id) { this.id = id; }
+    public void setCliente(Usuario cliente) { this.cliente = cliente; }
+    public void setPedido(Pedido pedido) { this.pedido = pedido; }
+    public void setEvento(Evento evento) { this.evento = evento; }
+    public void setQr(String qr) { this.qr = qr; }
+    
+    public void setEstado(Estado estado) {  // ← ESTE ERA EL QUE FALTABA
+        this.estado = estado;
     }
     
-    // getters y setters
-
-	public Integer getId() {
-		return id;
-	}
-
-	public Usuario getCliente() {
-		return cliente;
-	}
-
-	public Pedido getPedido() {
-		return pedido;
-	}
-
-	public Evento getEvento() {
-		return evento;
-	}
-
-	public String getQr() {
-		return qr;
-	}
-
-	public Estado getEstado() {
-		return estado;
-	}
-
-	public String getTipoEntrada() {
-		return tipoEntrada;
-	}
-
-  
-    
+    public void setTipoEntrada(String tipoEntrada) { 
+        this.tipoEntrada = tipoEntrada; 
+    }
 }

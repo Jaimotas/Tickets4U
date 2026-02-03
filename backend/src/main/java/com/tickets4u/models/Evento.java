@@ -11,8 +11,7 @@ public class Evento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne
-    @Column(name = "id_admin", nullable = false)
+    @Column(name = "id_admin")
     private Long idAdmin;
     
     private String nombre;
