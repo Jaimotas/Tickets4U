@@ -1,4 +1,4 @@
-package com.tickets4u.events;
+package com.tickets4u;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -12,14 +12,17 @@ public class Usuario {
     @Column(name = "nombre_usuario", unique = true)
     private String nombreUsuario;
     
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String contrasena;
     
     @Enumerated(EnumType.STRING)
     private Rol rol;
     
     public enum Rol {
-        ADMIN, ORGANIZER, ATTENDEE
+       admin,cliente
     }
     
     public Usuario() {}
@@ -32,7 +35,6 @@ public class Usuario {
     }
     
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
     
     public String getNombreUsuario() { return nombreUsuario; }
     public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }

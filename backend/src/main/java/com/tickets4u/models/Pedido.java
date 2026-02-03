@@ -12,6 +12,7 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
     private Usuario cliente;
@@ -31,7 +32,7 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido")
     private List<Descuento> descuentos;
-    
+        
     public Pedido() {}
     
     public Pedido(Usuario cliente,  Evento evento, BigDecimal total, String pago) {

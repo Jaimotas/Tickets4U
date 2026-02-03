@@ -1,6 +1,5 @@
 package com.tickets4u.events.controllers;
-
-import com.tickets4u.events.repositories.UsuarioRepository;
+import com.tickets4u.events.repositories.UsuarioEventsRepository;
 import com.tickets4u.models.Usuario;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.util.Optional;
 public class UsuarioController {
     
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioEventsRepository usuarioRepository;
     
     @GetMapping
     public List<Usuario> getAllUsuarios() {
