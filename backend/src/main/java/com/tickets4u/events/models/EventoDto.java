@@ -1,66 +1,27 @@
 package com.tickets4u.events.models;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "evento")
-public class Evento {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class EventoDto {
+
     private Long id;
-
-    @Column(name = "id_admin")
-    private Long idAdmin;
-
     private String nombre;
     private String descripcion;
-
-    @Column(name = "fecha_inicio")
     private LocalDateTime fechaInicio;
-
-    @Column(name = "fecha_fin")
     private LocalDateTime fechaFin;
-
     private String ciudad;
     private String ubicacion;
     private String direccion;
     private Integer aforo;
     private String foto;
+    private String categoria; // ACTUAL, DESTACADO, INTERNACIONAL
 
-    @Enumerated(EnumType.STRING)
-    private Categoria categoria;
+    private Integer ticketsDisponibles;
+    private Integer ticketsVendidos;
+    private Double ingresos;
 
-    @OneToOne(mappedBy = "evento", fetch = FetchType.LAZY)
-    private Estadisticas estadisticas;
-
-    public enum Categoria {
-        ACTUAL, DESTACADO, INTERNACIONAL
-    }
-
-    public Evento() {}
-
-    public Evento(String nombre, String descripcion, LocalDateTime fechaInicio,
-                  LocalDateTime fechaFin, String ciudad, String ubicacion,
-                  String direccion, Integer aforo, String foto, Categoria categoria) {
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.ciudad = ciudad;
-        this.ubicacion = ubicacion;
-        this.direccion = direccion;
-        this.aforo = aforo;
-        this.foto = foto;
-        this.categoria = categoria;
-    }
-
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public Long getIdAdmin() { return idAdmin; }
-    public void setIdAdmin(Long idAdmin) { this.idAdmin = idAdmin; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
@@ -89,9 +50,15 @@ public class Evento {
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
 
-    public Categoria getCategoria() { return categoria; }
-    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    public Estadisticas getEstadisticas() { return estadisticas; }
-    public void setEstadisticas(Estadisticas estadisticas) { this.estadisticas = estadisticas; }
+    public Integer getTicketsDisponibles() { return ticketsDisponibles; }
+    public void setTicketsDisponibles(Integer ticketsDisponibles) { this.ticketsDisponibles = ticketsDisponibles; }
+
+    public Integer getTicketsVendidos() { return ticketsVendidos; }
+    public void setTicketsVendidos(Integer ticketsVendidos) { this.ticketsVendidos = ticketsVendidos; }
+
+    public Double getIngresos() { return ingresos; }
+    public void setIngresos(Double ingresos) { this.ingresos = ingresos; }
 }
