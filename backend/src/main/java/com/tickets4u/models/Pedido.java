@@ -1,6 +1,7 @@
 package com.tickets4u.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,6 +20,7 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "id_evento", nullable = false)
+    @JsonBackReference
     private Evento evento;
 
     @Column(nullable = false)
@@ -28,11 +30,11 @@ public class Pedido {
     private String pago;
 
     @OneToMany(mappedBy = "pedido")
-    @JsonIgnore // CRUCIAL: Evita recursión infinita Pedido -> Ticket -> Pedido
+    @JsonIgnore
     private List<Ticket> tickets;
 
     @OneToMany(mappedBy = "pedido")
-    @JsonIgnore // Evita cargar descuentos en el JSON de respuesta del pedido
+    @JsonIgnore
     private List<Descuento> descuentos;
 
     public Pedido() {}
@@ -44,7 +46,7 @@ public class Pedido {
         this.pago = pago;
     }
 
-    // Getters y setters (mantener los que ya tienes)
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Usuario getCliente() { return cliente; }

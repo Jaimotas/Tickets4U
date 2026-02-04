@@ -1,8 +1,8 @@
 package com.tickets4u.events.services;
 
-import com.tickets4u.events.models.Estadisticas;
-import com.tickets4u.events.models.Evento;
-import com.tickets4u.events.models.EventoDto;
+import com.tickets4u.models.Estadisticas;
+import com.tickets4u.models.Evento;
+import com.tickets4u.models.EventoDto;
 import com.tickets4u.events.repositories.EventoRepository;
 import org.springframework.stereotype.Service;
 

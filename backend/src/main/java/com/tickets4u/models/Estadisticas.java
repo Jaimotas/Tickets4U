@@ -1,10 +1,8 @@
 package com.tickets4u.models;
 
+import com.tickets4u.models.Evento;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-package com.tickets4u.events.models;
-
-import jakarta.persistence.*;
 
 @Entity
 @Table(name = "estadisticas")
@@ -12,22 +10,11 @@ public class Estadisticas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @OneToOne
-    @JoinColumn(name = "id_evento", nullable = false)
+    @JoinColumn(name = "id_evento", referencedColumnName = "id", nullable = false)
     private Evento evento;
-
-    @Column(name = "tickets_disponibles")
-    private int ticketsDisponibles;
-
-    @Column(name = "tickets_vendidos")
-    private int ticketsVendidos;
-
-    private BigDecimal ingresos;
-
-    // getters y setters
-    private Long id;
 
     @Column(name = "tickets_disponibles")
     private Integer ticketsDisponibles;
@@ -38,13 +25,12 @@ public class Estadisticas {
     @Column(name = "ingresos")
     private Double ingresos;
 
-    @OneToOne
-    @JoinColumn(name = "id_evento", referencedColumnName = "id")
-    private Evento evento;
-
-    // Getters y setters
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Evento getEvento() { return evento; }
+    public void setEvento(Evento evento) { this.evento = evento; }
 
     public Integer getTicketsDisponibles() { return ticketsDisponibles; }
     public void setTicketsDisponibles(Integer ticketsDisponibles) { this.ticketsDisponibles = ticketsDisponibles; }
@@ -54,7 +40,4 @@ public class Estadisticas {
 
     public Double getIngresos() { return ingresos; }
     public void setIngresos(Double ingresos) { this.ingresos = ingresos; }
-
-    public Evento getEvento() { return evento; }
-    public void setEvento(Evento evento) { this.evento = evento; }
 }

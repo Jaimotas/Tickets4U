@@ -1,6 +1,6 @@
 package com.tickets4u.events.repositories;
 
-import com.tickets4u.events.models.Estadisticas;
+import com.tickets4u.models.Estadisticas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

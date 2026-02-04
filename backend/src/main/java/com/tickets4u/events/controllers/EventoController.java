@@ -1,8 +1,9 @@
 package com.tickets4u.events.controllers;
 
-import com.tickets4u.events.repositories.EventoRepository;
 import com.tickets4u.models.Evento;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tickets4u.models.EventoDto;
+import com.tickets4u.events.repositories.EventoRepository;
+import com.tickets4u.events.services.EventoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,34 +17,33 @@ public class EventoController {
     private final EventoRepository eventoRepository;
     private final EventoService eventoService;
 
-    public EventoController(EventoRepository eventoRepository,
-                            EventoService eventoService) {
+    public EventoController(EventoRepository eventoRepository, EventoService eventoService) {
         this.eventoRepository = eventoRepository;
         this.eventoService = eventoService;
     }
 
-    // ----- ENDPOINTS QUE USA EL FRONT (CON DTO) -----
-
+    // ----- ENDPOINTS PARA FRONT CON DTO -----
     @GetMapping
     public List<EventoDto> getAllEventos() {
         return eventoService.listarEventos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Evento> getEventoById(@PathVariable Long id) {
-        return eventoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    public EventoDto getEventoById(@PathVariable Long id) {
-        return eventoService.obtenerEventoPorId(id);
+    public ResponseEntity<EventoDto> getEventoById(@PathVariable Long id) {
+        try {
+            EventoDto dto = eventoService.obtenerEventoPorId(id);
+            return ResponseEntity.ok(dto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // ----- CRUD INTERNO (SIGUE TRABAJANDO CON ENTIDAD) -----
-
+    // ----- CRUD INTERNO -----
     @PostMapping
     public ResponseEntity<Evento> createEvento(@RequestBody Evento evento) {
         try {
-            return ResponseEntity.ok(eventoRepository.save(evento));
+            Evento saved = eventoRepository.save(evento);
+            return ResponseEntity.ok(saved);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

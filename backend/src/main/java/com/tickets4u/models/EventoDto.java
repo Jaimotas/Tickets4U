@@ -1,4 +1,4 @@
-package com.tickets4u.events.models;
+package com.tickets4u.models;
 
 import java.time.LocalDateTime;
 
@@ -14,12 +14,13 @@ public class EventoDto {
     private String direccion;
     private Integer aforo;
     private String foto;
-    private String categoria; // ACTUAL, DESTACADO, INTERNACIONAL
+    private String categoria;
 
     private Integer ticketsDisponibles;
     private Integer ticketsVendidos;
     private Double ingresos;
 
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

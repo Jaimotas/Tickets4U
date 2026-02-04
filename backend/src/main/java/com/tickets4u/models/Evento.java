@@ -1,9 +1,8 @@
 package com.tickets4u.models;
 
-import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,126 +30,67 @@ public class Evento {
 
     private String ciudad;
     private String ubicacion;
-
-    @Column(columnDefinition = "POINT")
     private String direccion;
-
     private Integer aforo;
     private String foto;
 
-    @Enumerated(EnumType.STRING)
-    private Categoria categoria;
+    @Column(name = "categoria")
+    private String categoriaString;
 
-    @OneToOne(mappedBy = "evento", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "evento", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("evento")
     private Estadisticas estadisticas;
 
-    public enum Categoria {
-        ACTUAL, DESTACADO, INTERNACIONAL;
-
-        @JsonCreator
-        public static Categoria fromString(String value) {
-            if (value == null) return null;
-            try {
-                return Categoria.valueOf(value.toUpperCase().trim());
-            } catch (IllegalArgumentException e) {
-                return ACTUAL; // Valor por defecto si no coincide
-            }
-        }
-
-        @JsonValue
-        public String toValue() { return this.name(); }
-    }
-
     @OneToMany(mappedBy = "evento")
-    @JsonIgnore // Evita error 500 por recursión infinita
+    @JsonIgnore
     private List<Pedido> pedidos;
 
     @OneToMany(mappedBy = "evento")
-    @JsonIgnore // Evita error 500 por recursión infinita
+    @JsonIgnore
     private List<Ticket> tickets;
 
-    @OneToOne(mappedBy = "evento")
-    private Estadisticas estadisticas;
-
-    public Evento() {}
-
-    // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getIdAdmin() { return idAdmin; }
-    public void setIdAdmin(Long idAdmin) { this.idAdmin = idAdmin; }
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    public LocalDateTime getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
-    public LocalDateTime getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
-    public String getUbicacion() { return ubicacion; }
-    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
-    public Integer getAforo() { return aforo; }
-    public void setAforo(Integer aforo) { this.aforo = aforo; }
-    public String getFoto() { return foto; }
-    public void setFoto(String foto) { this.foto = foto; }
-    public Evento() {}
-
-    public Evento(String nombre, String descripcion, LocalDateTime fechaInicio,
-                  LocalDateTime fechaFin, String ciudad, String ubicacion,
-                  String direccion, Integer aforo, String foto, Categoria categoria) {
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.ciudad = ciudad;
-        this.ubicacion = ubicacion;
-        this.direccion = direccion;
-        this.aforo = aforo;
-        this.foto = foto;
-        this.categoria = categoria;
+    public enum Categoria {
+        ACTUAL, DESTACADO, INTERNACIONAL
     }
 
-    // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Evento() {}
 
-    public Long getIdAdmin() { return idAdmin; }
-    public void setIdAdmin(Long idAdmin) { this.idAdmin = idAdmin; }
-
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
-    public LocalDateTime getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
-
-    public LocalDateTime getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
-
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
-
-    public String getUbicacion() { return ubicacion; }
-    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
-
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
-
-    public Integer getAforo() { return aforo; }
-    public void setAforo(Integer aforo) { this.aforo = aforo; }
-
-    public String getFoto() { return foto; }
-    public void setFoto(String foto) { this.foto = foto; }
-
-    public Categoria getCategoria() { return categoria; }
-    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
-
+    // Getter para Estadísticas (Necesario para EventoService)
     public Estadisticas getEstadisticas() { return estadisticas; }
     public void setEstadisticas(Estadisticas estadisticas) { this.estadisticas = estadisticas; }
+
+    // Manejo de Categoría
+    public Categoria getCategoria() {
+        try {
+            return (categoriaString != null) ? Categoria.valueOf(categoriaString.toUpperCase()) : Categoria.ACTUAL;
+        } catch (Exception e) { return Categoria.ACTUAL; }
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoriaString = (categoria != null) ? categoria.name() : null;
+    }
+
+    // Getters y Setters Estándar
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getIdAdmin() { return idAdmin; }
+    public void setIdAdmin(Long idAdmin) { this.idAdmin = idAdmin; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public LocalDateTime getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
+    public LocalDateTime getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getUbicacion() { return ubicacion; }
+    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+    public Integer getAforo() { return aforo; }
+    public void setAforo(Integer aforo) { this.aforo = aforo; }
+    public String getFoto() { return foto; }
+    public void setFoto(String foto) { this.foto = foto; }
 }
