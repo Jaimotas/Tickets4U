@@ -44,26 +44,24 @@ class EventAdapter(
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
 
-        // Formateamos la fecha para que sea "cristiana" en la tarjeta
+        // Usamos el operador elvis (?:) para manejar nulos en los textos
         val fechaLegible = formatearFechaCristiana(event.fechaInicio)
 
-        holder.name.text = event.nombre
-        holder.location.text = event.ubicacion
-        holder.date.text = fechaLegible // Mostramos la fecha formateada
+        holder.name.text = event.nombre ?: "Evento sin nombre"
+        holder.location.text = event.ubicacion ?: "Ubicación no disponible"
+        holder.date.text = fechaLegible
 
         Glide.with(holder.itemView.context)
             .load(event.foto)
             .placeholder(android.R.drawable.ic_menu_gallery)
-            .error(R.drawable.maluma)
+            .error(R.drawable.maluma) // Asegúrate de que este recurso exista o cámbialo
             .into(holder.image)
 
-        // Gestión de la etiqueta de tendencia
-        holder.trendingBadge.visibility =
-            if (event.categoria.equals("DESTACADO", ignoreCase = true))
-                View.VISIBLE else View.GONE
-        holder.trendingBadge.visibility = if (event.categoria.equals("DESTACADO", ignoreCase = true))
-            View.VISIBLE else View.GONE
+        // Gestión segura de la etiqueta de tendencia
+        val esDestacado = event.categoria?.equals("DESTACADO", ignoreCase = true) == true
+        holder.trendingBadge.visibility = if (esDestacado) View.VISIBLE else View.GONE
 
+        // Modo edición (Admin)
         holder.adminActions.visibility = if (isEditMode) View.VISIBLE else View.GONE
 
         holder.btnEdit.setOnClickListener { onEdit(event) }
@@ -73,28 +71,17 @@ class EventAdapter(
             if (!isEditMode) {
                 val context = holder.itemView.context
                 val intent = Intent(context, DatosDeEventoActivity::class.java).apply {
-                    // Info básica
                     putExtra("EVENTO_ID", event.id)
                     putExtra("EVENTO_NOMBRE", event.nombre)
                     putExtra("EVENTO_UBICACION", event.ubicacion)
-                    // Pasamos la fecha ya formateada para que el detalle no tenga que volver a hacerlo
                     putExtra("EVENTO_FECHA", fechaLegible)
                     putExtra("EVENTO_FOTO", event.foto)
                     putExtra("EVENTO_DESCRIPCION", event.descripcion)
 
-                    // NUEVO: estadísticas
-                    putExtra(
-                        "EVENTO_TICKETS_DISPONIBLES",
-                        event.ticketsDisponibles ?: -1
-                    )
-                    putExtra(
-                        "EVENTO_TICKETS_VENDIDOS",
-                        event.ticketsVendidos ?: -1
-                    )
-                    putExtra(
-                        "EVENTO_INGRESOS",
-                        event.ingresos ?: -1.0
-                    )
+                    // Enviamos estadísticas con valores por defecto si son nulos
+                    putExtra("EVENTO_TICKETS_DISPONIBLES", event.ticketsDisponibles ?: 0)
+                    putExtra("EVENTO_TICKETS_VENDIDOS", event.ticketsVendidos ?: 0)
+                    putExtra("EVENTO_INGRESOS", event.ingresos ?: 0.0)
                 }
                 context.startActivity(intent)
             }
@@ -103,20 +90,19 @@ class EventAdapter(
 
     override fun getItemCount(): Int = events.size
 
-    // Función interna para el formateo de estilo DD/MM/YYYY HH:mm
     private fun formatearFechaCristiana(fechaRaw: String?): String {
         if (fechaRaw.isNullOrEmpty()) return "Sin fecha"
         return try {
             if (fechaRaw.contains("T")) {
                 val partes = fechaRaw.split("T")
                 val fechaPartes = partes[0].split("-") // [YYYY, MM, DD]
-                val hora = partes[1].substring(0, 5)   // HH:mm
+                val hora = if (partes[1].length >= 5) partes[1].substring(0, 5) else partes[1]
                 "${fechaPartes[2]}/${fechaPartes[1]}/${fechaPartes[0]} - $hora"
             } else {
                 fechaRaw
             }
         } catch (e: Exception) {
-            fechaRaw ?: ""
+            fechaRaw ?: "Error en fecha"
         }
     }
 }
