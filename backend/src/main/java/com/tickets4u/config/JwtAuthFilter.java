@@ -1,15 +1,12 @@
 package com.tickets4u.config;
 
 import com.tickets4u.models.Usuario;
-import com.tickets4u.*;
 import com.tickets4u.login.repository.UsuarioLoginRepository;
 import com.tickets4u.login.service.JwtService;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +19,6 @@ import java.util.Optional;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-
     private final JwtService jwtService;
     private final UsuarioLoginRepository usuarioRepository;
 
@@ -36,7 +32,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-
         final String authHeader = request.getHeader("Authorization");
 
         // Si no hay token o no empieza con Bearer → ignoramos
@@ -73,15 +68,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         SimpleGrantedAuthority authority =
                 new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name());
 
+        // ✅ CAMBIO IMPORTANTE: guardar el EMAIL como principal, no el objeto Usuario
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(
-                        usuario,
+                        usuario.getEmail(),  // 👈 Ahora guarda el email
                         null,
                         Collections.singletonList(authority)
                 );
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
         filterChain.doFilter(request, response);
     }
 }

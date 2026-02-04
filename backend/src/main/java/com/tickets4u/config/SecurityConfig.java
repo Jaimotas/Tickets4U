@@ -15,9 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // 🔑 para @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
-
     private final JwtAuthFilter jwtAuthFilter;
     
     @Bean
@@ -28,40 +27,32 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 🔹 lo que ya tenías
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-
-            // 🔹 JWT = sin sesiones
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            // 🔹 permisos
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
-                        "/api/auth/**",      // login y register
+                        "/api/auth/**",
                         "/h2-console/**"
                 ).permitAll()
-                .requestMatchers("/api/eventos").permitAll() // lo que ya tenías
+                .requestMatchers("/api/eventos").permitAll()
+                .requestMatchers("/api/pedido/**").authenticated()  // 👈 AÑADIDO
                 .anyRequest().authenticated()
             )
-
-            // 🔹 filtro JWT
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
+        
         return http.build();
     }
-
-    // 🔹 necesario para el login
+    
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 }
-
