@@ -33,6 +33,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_1)
 
+        ApiService.RetrofitClient.init(this)
+
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         tvEmailError = findViewById(R.id.tvEmailError)
@@ -96,7 +98,7 @@ class LoginActivity : AppCompatActivity() {
             // Llamada al backend con coroutines
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = RetrofitClient.instance.login(LoginRequest(email, password))
+                    val response = ApiService.RetrofitClient.instance.login(LoginRequest(email, password))
 
                     // Guardar token y usuario en SharedPreferences
                     val prefs = getSharedPreferences("TICKETS4U_PREFS", Context.MODE_PRIVATE)

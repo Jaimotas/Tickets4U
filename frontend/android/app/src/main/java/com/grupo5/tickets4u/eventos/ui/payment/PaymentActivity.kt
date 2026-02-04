@@ -1,9 +1,11 @@
 package com.grupo5.tickets4u.eventos.ui.payment
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
@@ -11,10 +13,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputLayout
 import com.grupo5.tickets4u.R
-import java.util.Calendar // Usamos Calendar que es compatible con versiones antiguas
+import com.grupo5.tickets4u.ApiService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.time.LocalDate
 
 class PaymentActivity : AppCompatActivity() {
 
@@ -32,7 +40,10 @@ class PaymentActivity : AppCompatActivity() {
         val tilFecha = findViewById<TextInputLayout>(R.id.tilFecha)
         val btnAtras = findViewById<ImageButton>(R.id.btnAtras)
 
+        // 2. Configuración inicial - OBTENER DATOS DEL INTENT
         val total = intent.getDoubleExtra("TOTAL_CARRITO", 0.0)
+        val eventoId = intent.getLongExtra("EVENTO_ID", 0L)
+
         txtTotalPago.text = "Total a pagar: %.2f€".format(total)
 
         btnAtras.setOnClickListener { finish() }
@@ -96,13 +107,89 @@ class PaymentActivity : AppCompatActivity() {
         edtTitular.addTextChangedListener(genericWatcher)
         edtCvc.addTextChangedListener(genericWatcher)
 
+        // 4. Lógica de Pago - MODIFICADO PARA LLAMAR AL BACKEND
         btnConfirmarPago.setOnClickListener {
-            it.isEnabled = false
-            val intentLoading = Intent(this, PaymentLoadingActivity::class.java).apply {
-                putExtra("TOTAL_PAGADO", total)
+            btnConfirmarPago.isEnabled = false
+            confirmarPedidoEnBackend(total, eventoId, btnConfirmarPago)
+        }
+    }
+
+    // 👇 FUNCIÓN ACTUALIZADA CON ResponseBody
+    private fun confirmarPedidoEnBackend(total: Double, eventoId: Long, boton: Button) {
+        // Verificar que el usuario esté autenticado
+        val prefs = getSharedPreferences("TICKETS4U_PREFS", Context.MODE_PRIVATE)
+        val token = prefs.getString("TOKEN", null)
+
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Debes iniciar sesión primero", Toast.LENGTH_LONG).show()
+            boton.isEnabled = true
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Llamada al backend
+                val responseBody = ApiService.RetrofitClient.instance.confirmarPedido(
+                    total = total,
+                    idEvento = eventoId
+                )
+
+                // Leer el ResponseBody como string
+                val responseText = responseBody.string()
+                Log.d("PEDIDO_SUCCESS", "Respuesta del servidor: $responseText")
+
+                // Si todo OK, ir a la pantalla de loading/success
+                runOnUiThread {
+                    val intentLoading = Intent(this@PaymentActivity, PaymentLoadingActivity::class.java)
+                    intentLoading.putExtra("TOTAL_PAGADO", total)
+                    intentLoading.putExtra("PEDIDO_CONFIRMADO", true)
+                    startActivity(intentLoading)
+                    finish()
+                }
+
+            } catch (e: HttpException) {
+                Log.e("PEDIDO_ERROR", "HTTP Error ${e.code()}: ${e.message()}")
+
+                runOnUiThread {
+                    boton.isEnabled = true
+
+                    when (e.code()) {
+                        401 -> {
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                "Sesión expirada. Vuelve a iniciar sesión",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        400 -> {
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                "Error en los datos del pedido",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        else -> {
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                "Error al confirmar pedido. Intenta de nuevo",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e("PEDIDO_ERROR", "Error: ${e.message}", e)
+
+                runOnUiThread {
+                    boton.isEnabled = true
+                    Toast.makeText(
+                        this@PaymentActivity,
+                        "Error de conexión. Verifica tu internet",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-            startActivity(intentLoading)
-            finish()
         }
     }
 

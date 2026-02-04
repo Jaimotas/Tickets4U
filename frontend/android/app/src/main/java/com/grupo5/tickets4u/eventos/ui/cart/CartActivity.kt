@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.grupo5.tickets4u.R
 import com.grupo5.tickets4u.eventos.ui.payment.PaymentActivity
+import com.grupo5.tickets4u.model.TicketItem
 
 class CartActivity : AppCompatActivity() {
 
@@ -54,14 +55,37 @@ class CartActivity : AppCompatActivity() {
         btnAtras.setOnClickListener { finish() }
 
         btnPagar.setOnClickListener {
+            val items = viewModel.items.value
             val totalValue = viewModel.total.value ?: 0.0
-            if (totalValue > 0) {
-                val intent = Intent(this, PaymentActivity::class.java)
-                intent.putExtra("TOTAL_CARRITO", totalValue)
-                startActivity(intent)
-            } else {
+
+            if (items.isNullOrEmpty()) {
                 Toast.makeText(this, "El carrito está vacío", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (totalValue <= 0) {
+                Toast.makeText(this, "Total inválido", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Obtener el eventoId del primer item del carrito
+            val eventoId = items.firstOrNull()?.eventoId ?: 0L
+
+            if (eventoId == 0L) {
+                Toast.makeText(this, "Error: Evento no válido", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val intent = Intent(this, PaymentActivity::class.java)
+            intent.putExtra("TOTAL_CARRITO", totalValue)
+            intent.putExtra("EVENTO_ID", eventoId)  // 👈 PASAR EL ID DEL EVENTO
+            startActivity(intent)
+        }
+
+        // 6. Datos de prueba (con eventoId incluido)
+        if (viewModel.items.value.isNullOrEmpty()) {
+            viewModel.addItem(TicketItem("1", "Concierto Rock", 25.0, 1, eventoId = 1L))
+            viewModel.addItem(TicketItem("2", "Festival EDM", 35.0, 2, eventoId = 1L))
         }
     }
 }

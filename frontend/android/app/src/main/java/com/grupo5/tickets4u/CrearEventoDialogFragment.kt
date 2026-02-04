@@ -126,9 +126,9 @@ class CrearEventoDialogFragment(
         lifecycleScope.launch {
             try {
                 val response = if (eventoParaEditar == null) {
-                    RetrofitClient.instance.crearEvento(evento)
+                    ApiService.RetrofitClient.instance.crearEvento(evento)
                 } else {
-                    RetrofitClient.instance.editarEvento(eventoParaEditar.id!!, evento)
+                    ApiService.RetrofitClient.instance.editarEvento(eventoParaEditar.id!!, evento)
                 }
 
                 if (response.isSuccessful) {
