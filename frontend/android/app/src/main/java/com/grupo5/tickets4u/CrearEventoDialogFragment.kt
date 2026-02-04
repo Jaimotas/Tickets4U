@@ -47,6 +47,11 @@ class CrearEventoDialogFragment(
         val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
         val etAforo = view.findViewById<EditText>(R.id.etAforo)
         val etFoto = view.findViewById<EditText>(R.id.etFoto)
+        val fotoNombre = etFoto.text.toString()
+            .substringBeforeLast('.') // elimina extensión si la hay
+            .lowercase()             // minúsculas para que coincida con res/drawable
+        val fotoResId = resources.getIdentifier(fotoNombre, "drawable", requireContext().packageName)
+
 
         val categorias = arrayOf("ACTUAL", "DESTACADO", "INTERNACIONAL")
         spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categorias)
@@ -89,7 +94,7 @@ class CrearEventoDialogFragment(
                 ubicacion = view.findViewById<EditText>(R.id.etUbicacion).text.toString(),
                 direccion = view.findViewById<EditText>(R.id.etDireccion).text.toString(),
                 aforo = aforoVal.toInt(),
-                foto = view.findViewById<EditText>(R.id.etFoto).text.toString(),
+                foto = fotoNombre,
                 categoria = spinner.selectedItem.toString(),
                 idAdmin = TODO()
 

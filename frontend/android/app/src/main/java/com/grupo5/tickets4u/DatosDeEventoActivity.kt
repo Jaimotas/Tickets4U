@@ -56,9 +56,13 @@ class DatosDeEventoActivity : AppCompatActivity() {
         tvDate.text = fechaLimpia
         tvLocation.text = ubicacion
         tvDescription.text = descripcion
+        val fotoNombre = fotoUrl?.substringBeforeLast('.')?.lowercase()
+        val fotoResId = fotoNombre?.let {
+            resources.getIdentifier(it, "drawable", packageName)
+        } ?: 0
 
         Glide.with(this)
-            .load(fotoUrl)
+            .load(if (fotoResId != 0) fotoResId else R.drawable.maluma) // fallback
             .placeholder(android.R.drawable.ic_menu_gallery)
             .error(R.drawable.maluma)
             .into(ivEventImage)
@@ -76,5 +80,6 @@ class DatosDeEventoActivity : AppCompatActivity() {
             }
             startActivity(intentCompra)
         }
+
     }
 }

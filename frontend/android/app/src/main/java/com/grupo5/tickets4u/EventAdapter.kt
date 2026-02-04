@@ -1,5 +1,6 @@
 package com.grupo5.tickets4u
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -49,11 +50,12 @@ class EventAdapter(
         holder.location.text = event.ubicacion
         holder.date.text = event.fechaInicio
 
-        // Carga de imagen dinámica con Glide
+        // 🔹 Carga de imagen desde res/drawable usando el nombre de la DB
+        val resId = getDrawableResIdFromName(holder.itemView.context, event.foto)
         Glide.with(holder.itemView.context)
-            .load(event.foto)
+            .load(resId)
             .placeholder(android.R.drawable.ic_menu_gallery)
-            .error(R.drawable.maluma) // Imagen de respaldo
+            .error(R.drawable.maluma)
             .into(holder.image)
 
         // Gestión de la etiqueta de tendencia
@@ -72,7 +74,6 @@ class EventAdapter(
             if (!isEditMode) {
                 val context = holder.itemView.context
                 val intent = Intent(context, DatosDeEventoActivity::class.java).apply {
-                    // Pasamos toda la información al detalle del evento
                     putExtra("EVENTO_ID", event.id)
                     putExtra("EVENTO_NOMBRE", event.nombre)
                     putExtra("EVENTO_UBICACION", event.ubicacion)
@@ -83,6 +84,13 @@ class EventAdapter(
                 context.startActivity(intent)
             }
         }
+    }
+
+    fun getDrawableResIdFromName(context: Context, fotoNombre: String?): Int {
+        if (fotoNombre.isNullOrBlank()) return R.drawable.maluma // fallback
+        val nombreNormalizado = fotoNombre.substringBeforeLast('.').lowercase()
+        val resId = context.resources.getIdentifier(nombreNormalizado, "drawable", context.packageName)
+        return if (resId != 0) resId else R.drawable.maluma
     }
 
     override fun getItemCount(): Int = events.size

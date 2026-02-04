@@ -31,20 +31,25 @@ class PaginaCompraActivity : AppCompatActivity() {
         val titulo = intent.getStringExtra("TITULO") ?: "Evento"
         val fecha = intent.getStringExtra("FECHA") ?: "Fecha pendiente"
         val lugar = intent.getStringExtra("LUGAR") ?: "Lugar pendiente"
-        val fotoUrl = intent.getStringExtra("IMAGEN_URL")
+        val fotoNombre = intent.getStringExtra("IMAGEN_URL")
 
-        // 3. Asignar datos a la UI
+        // 3. Convertir el nombre de la DB a resource ID
+        val fotoResId = fotoNombre?.substringBeforeLast('.')?.lowercase()?.let { nombre ->
+            resources.getIdentifier(nombre, "drawable", packageName)
+        } ?: 0
+
+        // 4. Asignar datos a la UI
         tvTitulo.text = titulo
         tvFecha.text = fecha
         tvLugar.text = lugar
 
         Glide.with(this)
-            .load(fotoUrl)
+            .load(if (fotoResId != 0) fotoResId else R.drawable.maluma)
             .placeholder(android.R.drawable.ic_menu_gallery)
             .error(R.drawable.maluma)
             .into(ivImagen)
 
-        // 4. Configurar el Dropdown de cantidad (Máximo 8)
+        // 5. Configurar el Dropdown de cantidad (Máximo 8)
         val opciones = arrayOf(
             "1 entrada", "2 entradas", "3 entradas", "4 entradas",
             "5 entradas", "6 entradas", "7 entradas", "8 entradas"
@@ -52,10 +57,10 @@ class PaginaCompraActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, opciones)
         autoCompleteEntradas.setAdapter(adapter)
 
-        // 5. Botón Volver
+        // 6. Botón Volver
         btnBack.setOnClickListener { finish() }
 
-        // 6. Lógica de añadir al Carrito con COMPROBACIÓN DE LÍMITE
+        // 7. Lógica de añadir al Carrito con COMPROBACIÓN DE LÍMITE
         btnFinalizar.setOnClickListener {
             val seleccionStr = autoCompleteEntradas.text.toString()
             val cantidadSeleccionada = seleccionStr.filter { it.isDigit() }.toIntOrNull() ?: 1
@@ -65,7 +70,6 @@ class PaginaCompraActivity : AppCompatActivity() {
             val itemsEnCarrito = CartManager.getItems()
             val itemExistente = itemsEnCarrito.find { it.id == eventoId.toString() }
             val cantidadActual = itemExistente?.cantidad ?: 0
-
             val totalResultante = cantidadActual + cantidadSeleccionada
 
             if (totalResultante > 8) {
@@ -75,14 +79,12 @@ class PaginaCompraActivity : AppCompatActivity() {
                 } else {
                     "Ya tienes el máximo de 8 entradas para este evento en tu carrito."
                 }
-
                 AlertDialog.Builder(this)
                     .setTitle("Límite alcanzado")
                     .setMessage(mensaje)
                     .setPositiveButton("Entendido", null)
                     .show()
-
-                return@setOnClickListener // Detiene la ejecución para que no se añadan
+                return@setOnClickListener
             }
             // --- FIN COMPROBACIÓN ---
 
@@ -96,7 +98,7 @@ class PaginaCompraActivity : AppCompatActivity() {
                         nombreEvento = titulo,
                         precio = precioSimulado,
                         cantidad = cantidadSeleccionada,
-                        imagenUrl = fotoUrl,
+                        imagenUrl = fotoNombre,
                         eventoId = eventoId
                     )
 
