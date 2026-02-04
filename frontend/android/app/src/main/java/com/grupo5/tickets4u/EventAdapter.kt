@@ -36,7 +36,8 @@ class EventAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.event_item, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.event_item, parent, false)
         return EventViewHolder(view)
     }
 
@@ -56,6 +57,10 @@ class EventAdapter(
             .error(R.drawable.maluma)
             .into(holder.image)
 
+        // Gestión de la etiqueta de tendencia
+        holder.trendingBadge.visibility =
+            if (event.categoria.equals("DESTACADO", ignoreCase = true))
+                View.VISIBLE else View.GONE
         holder.trendingBadge.visibility = if (event.categoria.equals("DESTACADO", ignoreCase = true))
             View.VISIBLE else View.GONE
 
@@ -68,6 +73,7 @@ class EventAdapter(
             if (!isEditMode) {
                 val context = holder.itemView.context
                 val intent = Intent(context, DatosDeEventoActivity::class.java).apply {
+                    // Info básica
                     putExtra("EVENTO_ID", event.id)
                     putExtra("EVENTO_NOMBRE", event.nombre)
                     putExtra("EVENTO_UBICACION", event.ubicacion)
@@ -75,6 +81,20 @@ class EventAdapter(
                     putExtra("EVENTO_FECHA", fechaLegible)
                     putExtra("EVENTO_FOTO", event.foto)
                     putExtra("EVENTO_DESCRIPCION", event.descripcion)
+
+                    // NUEVO: estadísticas
+                    putExtra(
+                        "EVENTO_TICKETS_DISPONIBLES",
+                        event.ticketsDisponibles ?: -1
+                    )
+                    putExtra(
+                        "EVENTO_TICKETS_VENDIDOS",
+                        event.ticketsVendidos ?: -1
+                    )
+                    putExtra(
+                        "EVENTO_INGRESOS",
+                        event.ingresos ?: -1.0
+                    )
                 }
                 context.startActivity(intent)
             }
