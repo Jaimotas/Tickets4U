@@ -96,7 +96,7 @@
         private fun fetchEventos() {
             lifecycleScope.launch {
                 try {
-                    val eventos = RetrofitClient.instance.getEventos()
+                    val eventos = ApiService.RetrofitClient.instance.getEventos()
 
                     destacadosRecycler.adapter =
                         EventAdapter(eventos.filter { it.categoria.equals("DESTACADO", true) })

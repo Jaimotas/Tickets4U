@@ -96,7 +96,7 @@ class CrearEventoDialogFragment : DialogFragment() {
     private fun enviarEvento(evento: Event) {
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.instance.crearEvento(evento)
+                val response = ApiService.RetrofitClient.instance.crearEvento(evento)
                 if (response.isSuccessful) {
                     Toast.makeText(context, "Evento creado", Toast.LENGTH_SHORT).show()
                     onEventoCreado?.invoke()

@@ -8,5 +8,6 @@ data class TicketItem(
     val id: String,
     val nombreEvento: String,
     val precio: Double,
-    var cantidad: Int
+    var cantidad: Int,
+    val eventoId: Long
 ) : Parcelable

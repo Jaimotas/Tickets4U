@@ -9,27 +9,74 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import com.grupo5.tickets4u.login.*
+import android.content.Context
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import okhttp3.ResponseBody
+import java.util.concurrent.TimeUnit
 
 interface ApiService {
 
-    @POST("auth/login")
+    @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
-    @GET("eventos")
+
+    @POST("api/auth/register")
+    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+
+    @GET("api/eventos")
     suspend fun getEventos(): List<Event>
 
-    @POST("eventos")
+    @POST("api/eventos")
     suspend fun crearEvento(@Body evento: Event): retrofit2.Response<Event>
 
-}
+    @FormUrlEncoded
+    @POST("api/pedido/confirmar")
+    suspend fun confirmarPedido(
+        @Field("total") total: Double,
+        @Field("idEvento") idEvento: Long
+    ): ResponseBody
 
-object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:9090/api/" // IP para emulador
+    object RetrofitClient {
 
-    val instance: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
+        // Para emulador de Android Studio
+        private const val BASE_URL = "http://10.0.2.2:9090/"
+
+        private var retrofit: Retrofit? = null
+        private lateinit var appContext: Context
+
+        fun init(context: Context) {
+            appContext = context.applicationContext
+        }
+
+        val instance: ApiService
+            get() {
+                if (retrofit == null) {
+                    // Logging interceptor para debug
+                    val loggingInterceptor = HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    }
+
+                    // Auth interceptor
+                    val authInterceptor = AuthInterceptor(appContext)
+
+                    // OkHttpClient
+                    val client = OkHttpClient.Builder()
+                        .addInterceptor(loggingInterceptor)
+                        .addInterceptor(authInterceptor)
+                        .connectTimeout(30, TimeUnit.SECONDS)
+                        .readTimeout(30, TimeUnit.SECONDS)
+                        .writeTimeout(30, TimeUnit.SECONDS)
+                        .build()
+
+                    retrofit = Retrofit.Builder()
+                        .baseUrl(BASE_URL)
+                        .client(client)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                }
+                return retrofit!!.create(ApiService::class.java)
+            }
     }
 }
