@@ -1,62 +1,61 @@
 package com.grupo5.tickets4u
 
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tickets4u.Ticket
 
 class TicketAdapter(
     private val context: Context,
     private val tickets: List<Ticket>,
-    private val eventos: Map<Int, Event> // id_evento -> Event
+    private val onItemClick: (Ticket) -> Unit
 ) : RecyclerView.Adapter<TicketAdapter.TicketViewHolder>() {
 
-    inner class TicketViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvName: TextView = itemView.findViewById(R.id.tvTicketName)
-        val tvStatus: TextView = itemView.findViewById(R.id.tvTicketStatus)
-        val tvFecha: TextView = itemView.findViewById(R.id.tvFechaEvento)
+    class TicketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val txtNombre: TextView = view.findViewById(R.id.tvTicketName)
+        val txtFecha: TextView = view.findViewById(R.id.tvFechaEvento)
+        val txtEstado: TextView = view.findViewById(R.id.tvTicketStatus)
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): TicketViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_ticket, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TicketViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_ticket, parent, false)
         return TicketViewHolder(view)
     }
 
-    override fun getItemCount(): Int = tickets.size
-
     override fun onBindViewHolder(holder: TicketViewHolder, position: Int) {
         val ticket = tickets[position]
-        val event = eventos[ticket.id_evento]
 
-        holder.tvName.text = ticket.nombre
-        holder.tvStatus.text = ticket.estado.name
-        holder.tvFecha.text = event?.fechaInicio ?: "Fecha desconocida"
+        holder.txtNombre.text = ticket.evento.nombre
+
+        // Formateo de fecha para la lista
+        val fechaFormateada = formatearFechaCristiana(ticket.evento.fechaInicio)
+        holder.txtFecha.text = "Fecha: $fechaFormateada"
+
+        holder.txtEstado.text = "Estado: ${ticket.estado}"
 
         holder.itemView.setOnClickListener {
-            event?.let {
-                val intent = Intent(context, TicketDetailActivity::class.java).apply {
-                    putExtra("nombre", it.nombre)
-                    putExtra("descripcion", it.descripcion)
-                    putExtra("fecha_inicio", it.fechaInicio)
-                    putExtra("fecha_fin", it.fechaFin)
-                    putExtra("direccion", it.direccion)
-                    putExtra("foto", it.foto)
-                    putExtra("ciudad", it.ciudad)
-                    putExtra("ubicacion", it.ubicacion)
-                    putExtra("categoria", it.categoria)
-                    putExtra("tipo_entrada", ticket.tipo_entrada)
-                    putExtra("estado", ticket.estado.name)
-                }
-                context.startActivity(intent)
+            onItemClick(ticket)
+        }
+    }
+
+    override fun getItemCount() = tickets.size
+
+    // Convierte ISO (2025-02-21T21:00:00) a 21/02/2025 21:00
+    private fun formatearFechaCristiana(fechaRaw: String?): String {
+        if (fechaRaw.isNullOrEmpty()) return "Sin fecha"
+        return try {
+            if (fechaRaw.contains("T")) {
+                val partes = fechaRaw.split("T")
+                val fechaPartes = partes[0].split("-") // [YYYY, MM, DD]
+                val hora = partes[1].substring(0, 5)   // HH:mm
+                "${fechaPartes[2]}/${fechaPartes[1]}/${fechaPartes[0]} $hora"
+            } else {
+                fechaRaw
             }
+        } catch (e: Exception) {
+            fechaRaw
         }
     }
 }

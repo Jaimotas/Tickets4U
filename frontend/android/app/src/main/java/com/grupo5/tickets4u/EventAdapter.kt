@@ -19,7 +19,6 @@ class EventAdapter(
 
     private var isEditMode = false
 
-    // Método para activar/desactivar el modo edición (lápiz)
     fun setEditMode(enabled: Boolean) {
         isEditMode = enabled
         notifyDataSetChanged()
@@ -45,31 +44,31 @@ class EventAdapter(
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
 
-        // Asignación de textos básicos
+        // Formateamos la fecha para que sea "cristiana" en la tarjeta
+        val fechaLegible = formatearFechaCristiana(event.fechaInicio)
+
         holder.name.text = event.nombre
         holder.location.text = event.ubicacion
-        holder.date.text = event.fechaInicio
+        holder.date.text = fechaLegible // Mostramos la fecha formateada
 
-        // Carga de imagen dinámica con Glide
         Glide.with(holder.itemView.context)
             .load(event.foto)
             .placeholder(android.R.drawable.ic_menu_gallery)
-            .error(R.drawable.maluma) // Imagen de respaldo
+            .error(R.drawable.maluma)
             .into(holder.image)
 
         // Gestión de la etiqueta de tendencia
         holder.trendingBadge.visibility =
             if (event.categoria.equals("DESTACADO", ignoreCase = true))
                 View.VISIBLE else View.GONE
+        holder.trendingBadge.visibility = if (event.categoria.equals("DESTACADO", ignoreCase = true))
+            View.VISIBLE else View.GONE
 
-        // Gestión de visibilidad de herramientas de Admin
         holder.adminActions.visibility = if (isEditMode) View.VISIBLE else View.GONE
 
-        // Listeners de botones de edición y borrado
         holder.btnEdit.setOnClickListener { onEdit(event) }
         holder.btnDelete.setOnClickListener { onDelete(event) }
 
-        // Listener para abrir los detalles del evento
         holder.itemView.setOnClickListener {
             if (!isEditMode) {
                 val context = holder.itemView.context
@@ -78,7 +77,8 @@ class EventAdapter(
                     putExtra("EVENTO_ID", event.id)
                     putExtra("EVENTO_NOMBRE", event.nombre)
                     putExtra("EVENTO_UBICACION", event.ubicacion)
-                    putExtra("EVENTO_FECHA", event.fechaInicio)
+                    // Pasamos la fecha ya formateada para que el detalle no tenga que volver a hacerlo
+                    putExtra("EVENTO_FECHA", fechaLegible)
                     putExtra("EVENTO_FOTO", event.foto)
                     putExtra("EVENTO_DESCRIPCION", event.descripcion)
 
@@ -102,4 +102,21 @@ class EventAdapter(
     }
 
     override fun getItemCount(): Int = events.size
+
+    // Función interna para el formateo de estilo DD/MM/YYYY HH:mm
+    private fun formatearFechaCristiana(fechaRaw: String?): String {
+        if (fechaRaw.isNullOrEmpty()) return "Sin fecha"
+        return try {
+            if (fechaRaw.contains("T")) {
+                val partes = fechaRaw.split("T")
+                val fechaPartes = partes[0].split("-") // [YYYY, MM, DD]
+                val hora = partes[1].substring(0, 5)   // HH:mm
+                "${fechaPartes[2]}/${fechaPartes[1]}/${fechaPartes[0]} - $hora"
+            } else {
+                fechaRaw
+            }
+        } catch (e: Exception) {
+            fechaRaw ?: ""
+        }
+    }
 }

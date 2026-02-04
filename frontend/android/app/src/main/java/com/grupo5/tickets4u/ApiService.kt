@@ -1,11 +1,24 @@
 package com.grupo5.tickets4u
 
-import retrofit2.Response // Importante para que funcione Response<T>
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.* // Importa GET, POST, PUT, DELETE, Path, Body, etc.
+import retrofit2.Response
+import retrofit2.http.*
+
+data class QrResponse(val status: String, val message: String? = null)
+
+data class CrearTicketsRequest(
+    val idCliente: Int,
+    val idPedido: Long,
+    val items: List<TicketItemRequest>
+)
+
+data class TicketItemRequest(
+    val idEvento: Long,
+    val tipoEntrada: String,
+    val cantidad: Int
+)
 
 interface ApiService {
+    // EVENTOS
     @GET("eventos")
     suspend fun getEventos(): List<Event>
 
@@ -17,16 +30,18 @@ interface ApiService {
 
     @DELETE("eventos/{id}")
     suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
-}
 
-object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:8080/api/"
+    // COMPRAS Y TICKETS
+    @POST("pedidos")
+    suspend fun crearPedido(@Body pedido: Map<String, @JvmSuppressWildcards Any>): Response<Map<String, Any>>
 
-    val instance: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+    @POST("tickets/crear-tickets")
+    suspend fun crearTickets(@Body request: CrearTicketsRequest): Response<List<Ticket>>
+
+    @GET("tickets/cliente/{idCliente}")
+    suspend fun getTicketsCliente(@Path("idCliente") idCliente: Int): Response<List<Ticket>>
+
+    // VALIDACIÓN QR
+    @GET("tickets/validate")
+    suspend fun validarQr(@Query("qr") qrCode: String): QrResponse
 }
