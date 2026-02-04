@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.time.LocalDate
+import java.util.Calendar
 
 class PaymentActivity : AppCompatActivity() {
 
@@ -61,19 +62,18 @@ class PaymentActivity : AppCompatActivity() {
             it.customSelectionActionModeCallback = safeCallback
             it.isLongClickable = false
         }
-
-        // 2. Formateador de Tarjeta
         edtNumeroTarjeta.addTextChangedListener(object : TextWatcher {
-            private var isUpdating = false
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                if (isUpdating) return
-                isUpdating = true
-                val digits = s.toString().replace(" ", "")
-                val formatted = digits.chunked(4).joinToString(" ")
-                s?.replace(0, s.length, formatted)
-                isUpdating = false
+                val text = s.toString().replace(" ", "")
+                val formatted = text.chunked(4).joinToString(" ")
+                if (s.toString() != formatted) {
+                    edtNumeroTarjeta.removeTextChangedListener(this)
+                    edtNumeroTarjeta.setText(formatted)
+                    edtNumeroTarjeta.setSelection(formatted.length)
+                    edtNumeroTarjeta.addTextChangedListener(this)
+                }
                 validarFormulario(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc, btnConfirmarPago)
             }
         })

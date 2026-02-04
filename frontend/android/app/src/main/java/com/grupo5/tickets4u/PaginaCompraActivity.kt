@@ -96,7 +96,8 @@ class PaginaCompraActivity : AppCompatActivity() {
                         nombreEvento = titulo,
                         precio = precioSimulado,
                         cantidad = cantidadSeleccionada,
-                        imagenUrl = fotoUrl
+                        imagenUrl = fotoUrl,
+                        eventoId = eventoId
                     )
 
                     CartManager.addItem(nuevoTicket)

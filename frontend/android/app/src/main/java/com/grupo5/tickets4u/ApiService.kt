@@ -15,6 +15,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import okhttp3.ResponseBody
+import retrofit2.http.DELETE
+import retrofit2.http.PUT
+import retrofit2.http.Path
 import java.util.concurrent.TimeUnit
 
 interface ApiService {
@@ -30,6 +33,15 @@ interface ApiService {
 
     @POST("api/eventos")
     suspend fun crearEvento(@Body evento: Event): retrofit2.Response<Event>
+
+    @PUT("api/eventos/{id}")
+    suspend fun editarEvento(
+        @Path("id") id: Long,
+        @Body evento: Event
+    ): Response<Event>
+    @DELETE("api/eventos/{id}")
+    suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
+
 
     @FormUrlEncoded
     @POST("api/pedido/confirmar")

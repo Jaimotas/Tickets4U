@@ -17,9 +17,20 @@ class TicketWallet : AppCompatActivity() {
         val rvTickets = findViewById<RecyclerView>(R.id.rvTickets)
         rvTickets.layoutManager = LinearLayoutManager(this)
 
+        val admin1 = Usuario(
+            id = 101L,
+            nombreUsuario = "Admin",
+            contrasena = buildString {
+        append("$2a$10")
+        append("tWzJmPBEV353IYqKeQynl")
+        append(".rUT3qKOpsamSHG/P1O6MJxxDfhI5dfW")
+    },
+            rol = Rol.admin,
+            email = "roblesmorenojaime@gmail.com"
+        )
         val evento1 = Event(
             id = 1L, // Usamos L para indicar que es Long si tu clase Event lo requiere
-            idAdmin = 101,
+            idAdmin = admin1,
             nombre = "Concierto Rock Night",
             descripcion = "Una noche inolvidable...",
             fechaInicio = "2026-04-12T20:00",
@@ -34,7 +45,7 @@ class TicketWallet : AppCompatActivity() {
 
         val evento2 = Event(
             id = 2L,
-            idAdmin = 102,
+            idAdmin = admin1,
             nombre = "Mad Cool Festival",
             descripcion = "Festival internacional...",
             fechaInicio = "2026-07-10T12:00",
@@ -58,6 +69,6 @@ class TicketWallet : AppCompatActivity() {
             evento2.id!!.toInt() to evento2
         )
 
-        rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)*/
+        rvTickets.adapter = TicketAdapter(this, tickets, eventosMap)
     }
 }
