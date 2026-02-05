@@ -54,11 +54,8 @@ interface ApiService {
     @POST("api/pedido")
     suspend fun crearPedido(@Body pedido: Map<String, @JvmSuppressWildcards Any>): Response<Map<String, Any>>
 
-    @POST("api/tickets/crear-tickets")
-    suspend fun crearTickets(@Body request: CrearTicketsRequest): Response<List<Ticket>>
-
     @GET("api/tickets/cliente/{idCliente}")
-    suspend fun getTicketsCliente(@Path("idCliente") idCliente: Int): Response<List<Ticket>>
+    suspend fun getTicketsCliente(@Path("idCliente") idCliente: Long): Response<List<Ticket>>
 
     // VALIDACIÓN QR
     @GET("api/tickets/validate")

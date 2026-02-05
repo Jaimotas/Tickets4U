@@ -2,6 +2,7 @@ package com.grupo5.tickets4u
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
@@ -22,10 +23,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
-
-    private var isEditModeActive = false
-
-
     private lateinit var destacadosRecycler: RecyclerView
     private lateinit var actualesRecycler: RecyclerView
     private lateinit var internacionalesRecycler: RecyclerView
@@ -108,12 +105,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
     }
-    findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
-        startActivity(Intent(this, CartActivity::class.java))
-
-       
-        }
-
 
     private fun setupAdapters(lista: List<Event>) {
         val onEdit = { e: Event -> openEventDialog(e) }
@@ -153,18 +144,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupAdapters(lista: List<Event>) {
-        val onEdit = { e: Event -> openEventDialog(e) }
-        val onDelete = { e: Event -> confirmDelete(e) }
-
-        // Si la base de datos está vacía, estas listas estarán vacías
-        destacadosRecycler.adapter = EventAdapter(lista.filter { it.categoria?.uppercase() == "DESTACADO" }, onEdit, onDelete)
-        actualesRecycler.adapter = EventAdapter(lista.filter { it.categoria?.uppercase() == "ACTUAL" }, onEdit, onDelete)
-        internacionalesRecycler.adapter = EventAdapter(lista.filter { it.categoria?.uppercase() == "INTERNACIONAL" }, onEdit, onDelete)
-
-        updateAdaptersEditMode()
-    }
-
     private fun updateAdaptersEditMode() {
         (destacadosRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
         (actualesRecycler.adapter as? EventAdapter)?.setEditMode(isEditModeActive)
@@ -194,7 +173,7 @@ class MainActivity : AppCompatActivity() {
     private fun validarQrEnBackend(qrCode: String) {
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.instance.validarQr(qrCode)
+                val response = ApiService.RetrofitClient.instance.validarQr(qrCode)
                 if (response.status == "VALIDO") {
                     mostrarResultadoValidacion("✅ Ticket Válido", "El ticket ha sido verificado correctamente.")
                 } else {

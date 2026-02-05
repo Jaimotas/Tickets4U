@@ -21,24 +21,21 @@ class TicketWallet : AppCompatActivity() {
         rvTickets = findViewById(R.id.rvTickets)
         rvTickets.layoutManager = LinearLayoutManager(this)
 
-        val admin1 = Usuario(
-            id = 101L,
-            nombreUsuario = "Admin",
-            contrasena = buildString {
-        append("$2a$10")
-        append("tWzJmPBEV353IYqKeQynl")
-        append(".rUT3qKOpsamSHG/P1O6MJxxDfhI5dfW")
-    },
-            rol = Rol.admin,
-            email = "roblesmorenojaime@gmail.com"
-        )
-        cargarTicketsDesdeBackend(admin1)
+        val userId = SessionManager.getUserId(this)
+        if (userId == -1L) {
+            Toast.makeText(this, "No estás logueado", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        cargarTicketsDesdeBackend(userId)
     }
 
-    private fun cargarTicketsDesdeBackend(idCliente: Int) {
+
+    private fun cargarTicketsDesdeBackend(idCliente: Long) {
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.instance.getTicketsCliente(idCliente)
+                val response = ApiService.RetrofitClient.instance.getTicketsCliente(idCliente)
 
                 if (response.isSuccessful) {
                     val listaTickets = response.body() ?: emptyList()

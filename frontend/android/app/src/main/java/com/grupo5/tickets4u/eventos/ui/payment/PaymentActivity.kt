@@ -22,7 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.time.LocalDate
 import java.util.Calendar
 
 class PaymentActivity : AppCompatActivity() {
@@ -41,15 +40,14 @@ class PaymentActivity : AppCompatActivity() {
         val tilFecha = findViewById<TextInputLayout>(R.id.tilFecha)
         val btnAtras = findViewById<ImageButton>(R.id.btnAtras)
 
-        // 2. Configuración inicial - OBTENER DATOS DEL INTENT
+        // 1. OBTENER DATOS DEL INTENT
         val total = intent.getDoubleExtra("TOTAL_CARRITO", 0.0)
         val eventoId = intent.getLongExtra("EVENTO_ID", 0L)
 
         txtTotalPago.text = "Total a pagar: %.2f€".format(total)
-
         btnAtras.setOnClickListener { finish() }
 
-        // 1. Bloqueo de acciones no seguras
+        // 2. Bloqueo de acciones no seguras en campos de texto
         val safeCallback = object : ActionMode.Callback {
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
             override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
@@ -62,6 +60,8 @@ class PaymentActivity : AppCompatActivity() {
             it.customSelectionActionModeCallback = safeCallback
             it.isLongClickable = false
         }
+
+        // 3. Formateo de número de tarjeta
         edtNumeroTarjeta.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -78,27 +78,20 @@ class PaymentActivity : AppCompatActivity() {
             }
         })
 
-        // 3. Formateador de Fecha
+        // 4. Formateo y validación de fecha
         edtFecha.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (before == 0 && s?.length == 2) {
-                    edtFecha.append("/")
-                }
+                if (before == 0 && s?.length == 2) edtFecha.append("/")
             }
             override fun afterTextChanged(s: Editable?) {
                 val input = s.toString()
-                if (input.length == 5) {
-                    if (!isFechaValida(input)) tilFecha.error = "Tarjeta caducada"
-                    else tilFecha.error = null
-                } else {
-                    tilFecha.error = null
-                }
+                tilFecha.error = if (input.length == 5 && !isFechaValida(input)) "Tarjeta caducada" else null
                 validarFormulario(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc, btnConfirmarPago)
             }
         })
 
-        // 4. Otros campos
+        // 5. Otros campos
         val genericWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) = validarFormulario(edtTitular, edtNumeroTarjeta, edtFecha, edtCvc, btnConfirmarPago)
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -107,16 +100,14 @@ class PaymentActivity : AppCompatActivity() {
         edtTitular.addTextChangedListener(genericWatcher)
         edtCvc.addTextChangedListener(genericWatcher)
 
-        // 4. Lógica de Pago - MODIFICADO PARA LLAMAR AL BACKEND
+        // 6. Botón Confirmar Pago
         btnConfirmarPago.setOnClickListener {
             btnConfirmarPago.isEnabled = false
             confirmarPedidoEnBackend(total, eventoId, btnConfirmarPago)
         }
     }
 
-    // 👇 FUNCIÓN ACTUALIZADA CON ResponseBody
     private fun confirmarPedidoEnBackend(total: Double, eventoId: Long, boton: Button) {
-        // Verificar que el usuario esté autenticado
         val prefs = getSharedPreferences("TICKETS4U_PREFS", Context.MODE_PRIVATE)
         val token = prefs.getString("TOKEN", null)
 
@@ -128,66 +119,33 @@ class PaymentActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Llamada al backend
-                val responseBody = ApiService.RetrofitClient.instance.confirmarPedido(
-                    total = total,
-                    idEvento = eventoId
-                )
-
-                // Leer el ResponseBody como string
+                val responseBody = ApiService.RetrofitClient.instance.confirmarPedido(total, eventoId)
                 val responseText = responseBody.string()
                 Log.d("PEDIDO_SUCCESS", "Respuesta del servidor: $responseText")
 
-                // Si todo OK, ir a la pantalla de loading/success
                 runOnUiThread {
                     val intentLoading = Intent(this@PaymentActivity, PaymentLoadingActivity::class.java)
                     intentLoading.putExtra("TOTAL_PAGADO", total)
-                    intentLoading.putExtra("PEDIDO_CONFIRMADO", true)
+                    intentLoading.putExtra("ID_EVENTO", eventoId) // ← clave corregida
                     startActivity(intentLoading)
                     finish()
                 }
 
             } catch (e: HttpException) {
                 Log.e("PEDIDO_ERROR", "HTTP Error ${e.code()}: ${e.message()}")
-
                 runOnUiThread {
                     boton.isEnabled = true
-
                     when (e.code()) {
-                        401 -> {
-                            Toast.makeText(
-                                this@PaymentActivity,
-                                "Sesión expirada. Vuelve a iniciar sesión",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                        400 -> {
-                            Toast.makeText(
-                                this@PaymentActivity,
-                                "Error en los datos del pedido",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        else -> {
-                            Toast.makeText(
-                                this@PaymentActivity,
-                                "Error al confirmar pedido. Intenta de nuevo",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        401 -> Toast.makeText(this@PaymentActivity, "Sesión expirada. Vuelve a iniciar sesión", Toast.LENGTH_LONG).show()
+                        400 -> Toast.makeText(this@PaymentActivity, "Error en los datos del pedido", Toast.LENGTH_SHORT).show()
+                        else -> Toast.makeText(this@PaymentActivity, "Error al confirmar pedido. Intenta de nuevo", Toast.LENGTH_SHORT).show()
                     }
                 }
-
             } catch (e: Exception) {
                 Log.e("PEDIDO_ERROR", "Error: ${e.message}", e)
-
                 runOnUiThread {
                     boton.isEnabled = true
-                    Toast.makeText(
-                        this@PaymentActivity,
-                        "Error de conexión. Verifica tu internet",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@PaymentActivity, "Error de conexión. Verifica tu internet", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -198,29 +156,21 @@ class PaymentActivity : AppCompatActivity() {
         val isCardValid = numero.text.toString().replace(" ", "").length == 16
         val isDateValid = fecha.text.length == 5 && isFechaValida(fecha.text.toString())
         val isCvcValid = cvc.text.length == 3
-
         boton.isEnabled = isNameValid && isCardValid && isDateValid && isCvcValid
     }
 
-    // LÓGICA COMPATIBLE CON API 24
     private fun isFechaValida(fechaText: String): Boolean {
         return try {
             val parts = fechaText.split("/")
             if (parts.size != 2) return false
-
             val inputMes = parts[0].toInt()
             val inputAnio = parts[1].toInt() + 2000
-
             if (inputMes !in 1..12) return false
-
             val calendar = Calendar.getInstance()
             val actualAnio = calendar.get(Calendar.YEAR)
-            val actualMes = calendar.get(Calendar.MONTH) + 1 // Calendar meses son 0-11
-
-            // Comparamos años primero
+            val actualMes = calendar.get(Calendar.MONTH) + 1
             if (inputAnio > actualAnio) return true
             if (inputAnio == actualAnio && inputMes >= actualMes) return true
-
             false
         } catch (e: Exception) {
             false

@@ -74,7 +74,7 @@ class CartActivity : AppCompatActivity() {
             }
 
             // Obtener el eventoId del primer item del carrito
-            val eventoId = items.firstOrNull()?.eventoId ?: 0L
+            val eventoId = items?.firstOrNull()?.eventoId ?: 0L
 
             if (eventoId == 0L) {
                 Toast.makeText(this, "Error: Evento no válido", Toast.LENGTH_SHORT).show()
