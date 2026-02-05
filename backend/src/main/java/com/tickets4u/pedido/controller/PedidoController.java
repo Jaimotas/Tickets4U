@@ -44,7 +44,7 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> createPedido(@RequestBody Pedido pedido) {
         try {
-            // Validación mínima antes de guardar
+            // Valid ación mínima antes de guardar
             if (pedido.getCliente() == null || pedido.getEvento() == null) {
                 return ResponseEntity.badRequest().body("Falta cliente o evento en el pedido");
             }
