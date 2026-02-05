@@ -20,7 +20,6 @@ class EventAdapter(
 
     private var isEditMode = false
 
-    // Método para activar/desactivar el modo edición (lápiz)
     fun setEditMode(enabled: Boolean) {
         isEditMode = enabled
         notifyDataSetChanged()
@@ -38,17 +37,20 @@ class EventAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.event_item, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.event_item, parent, false)
         return EventViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
 
-        // Asignación de textos básicos
-        holder.name.text = event.nombre
-        holder.location.text = event.ubicacion
-        holder.date.text = event.fechaInicio
+        // Usamos el operador elvis (?:) para manejar nulos en los textos
+        val fechaLegible = formatearFechaCristiana(event.fechaInicio)
+
+        holder.name.text = event.nombre ?: "Evento sin nombre"
+        holder.location.text = event.ubicacion ?: "Ubicación no disponible"
+        holder.date.text = fechaLegible
 
         // 🔹 Carga de imagen desde res/drawable usando el nombre de la DB
         val resId = getDrawableResIdFromName(holder.itemView.context, event.foto)
@@ -58,18 +60,16 @@ class EventAdapter(
             .error(R.drawable.maluma)
             .into(holder.image)
 
-        // Gestión de la etiqueta de tendencia
-        holder.trendingBadge.visibility = if (event.categoria.equals("DESTACADO", ignoreCase = true))
-            View.VISIBLE else View.GONE
+        // Gestión segura de la etiqueta de tendencia
+        val esDestacado = event.categoria?.equals("DESTACADO", ignoreCase = true) == true
+        holder.trendingBadge.visibility = if (esDestacado) View.VISIBLE else View.GONE
 
-        // Gestión de visibilidad de herramientas de Admin
+        // Modo edición (Admin)
         holder.adminActions.visibility = if (isEditMode) View.VISIBLE else View.GONE
 
-        // Listeners de botones de edición y borrado
         holder.btnEdit.setOnClickListener { onEdit(event) }
         holder.btnDelete.setOnClickListener { onDelete(event) }
 
-        // Listener para abrir los detalles del evento
         holder.itemView.setOnClickListener {
             if (!isEditMode) {
                 val context = holder.itemView.context
@@ -77,9 +77,14 @@ class EventAdapter(
                     putExtra("EVENTO_ID", event.id)
                     putExtra("EVENTO_NOMBRE", event.nombre)
                     putExtra("EVENTO_UBICACION", event.ubicacion)
-                    putExtra("EVENTO_FECHA", event.fechaInicio)
+                    putExtra("EVENTO_FECHA", fechaLegible)
                     putExtra("EVENTO_FOTO", event.foto)
                     putExtra("EVENTO_DESCRIPCION", event.descripcion)
+
+                    // Enviamos estadísticas con valores por defecto si son nulos
+                    putExtra("EVENTO_TICKETS_DISPONIBLES", event.ticketsDisponibles ?: 0)
+                    putExtra("EVENTO_TICKETS_VENDIDOS", event.ticketsVendidos ?: 0)
+                    putExtra("EVENTO_INGRESOS", event.ingresos ?: 0.0)
                 }
                 context.startActivity(intent)
             }
@@ -94,4 +99,20 @@ class EventAdapter(
     }
 
     override fun getItemCount(): Int = events.size
+
+    private fun formatearFechaCristiana(fechaRaw: String?): String {
+        if (fechaRaw.isNullOrEmpty()) return "Sin fecha"
+        return try {
+            if (fechaRaw.contains("T")) {
+                val partes = fechaRaw.split("T")
+                val fechaPartes = partes[0].split("-") // [YYYY, MM, DD]
+                val hora = if (partes[1].length >= 5) partes[1].substring(0, 5) else partes[1]
+                "${fechaPartes[2]}/${fechaPartes[1]}/${fechaPartes[0]} - $hora"
+            } else {
+                fechaRaw
+            }
+        } catch (e: Exception) {
+            fechaRaw ?: "Error en fecha"
+        }
+    }
 }

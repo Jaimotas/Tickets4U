@@ -14,11 +14,12 @@ import java.util.Calendar
 
 class CrearEventoDialogFragment(
     val eventoParaEditar: Event? = null,
-    val onEventoGuardado: () -> Unit // Este es el nombre correcto
+    val onEventoGuardado: () -> Unit
 ) : DialogFragment() {
 
-    private var fechaInicioIso = ""
-    private var fechaFinIso = ""
+    // Cambiamos a String? para que coincida con el modelo Event
+    private var fechaInicioIso: String? = ""
+    private var fechaFinIso: String? = ""
 
     override fun onStart() {
         super.onStart()
@@ -64,11 +65,15 @@ class CrearEventoDialogFragment(
             etCiudad.setText(ev.ciudad)
             etUbicacion.setText(ev.ubicacion)
             etDireccion.setText(ev.direccion)
-            etAforo.setText(ev.aforo.toString())
+            etAforo.setText(ev.aforo?.toString() ?: "0")
             etFoto.setText(ev.foto)
+
+            // Aquí ya no dará error porque ambos son String?
             fechaInicioIso = ev.fechaInicio
             fechaFinIso = ev.fechaFin
-            spinner.setSelection(categorias.indexOf(ev.categoria))
+
+            val pos = categorias.indexOf(ev.categoria?.uppercase())
+            if (pos >= 0) spinner.setSelection(pos)
         }
 
         btnVolver.setOnClickListener { dismiss() }
@@ -100,7 +105,6 @@ class CrearEventoDialogFragment(
 
             )
 
-            // Llamamos a la función de enviar/editar
             procesarEvento(eventoData)
         }
 
@@ -109,7 +113,6 @@ class CrearEventoDialogFragment(
 
     private fun showDateTimePicker(onFechaLista: (String) -> Unit) {
         val c = Calendar.getInstance()
-        // Especificamos los tipos (view, y, m, d) para evitar el error de inferencia
         val dateSetListener = DatePickerDialog.OnDateSetListener { _: DatePicker, year: Int, month: Int, day: Int ->
             TimePickerDialog(requireContext(), { _, hour, minute ->
                 val fecha = String.format("%04d-%02d-%02dT%02d:%02d:00", year, month + 1, day, hour, minute)
@@ -137,7 +140,7 @@ class CrearEventoDialogFragment(
 
                 if (response.isSuccessful) {
                     Toast.makeText(requireContext(), "¡Éxito!", Toast.LENGTH_SHORT).show()
-                    onEventoGuardado() // Nombre corregido aquí
+                    onEventoGuardado()
                     dismiss()
                 } else {
                     Toast.makeText(requireContext(), "Error: ${response.code()}", Toast.LENGTH_SHORT).show()

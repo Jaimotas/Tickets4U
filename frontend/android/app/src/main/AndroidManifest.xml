@@ -5,6 +5,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- ✅ ESTA LÍNEA SOLUCIONA TODO -->
     <uses-sdk tools:overrideLibrary="com.android.car.ui" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -60,7 +65,9 @@
         <activity
             android:name=".TicketWallet"
             android:exported="false" />
+         <activity
+            android:name=".QrScannerActivity" 
+            android:exported="false" />
 
     </application>
-
 </manifest>

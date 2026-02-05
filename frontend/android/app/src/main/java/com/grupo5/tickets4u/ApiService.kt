@@ -15,6 +15,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import okhttp3.ResponseBody
+import retrofit2.http.*
 import retrofit2.http.DELETE
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -41,14 +42,44 @@ interface ApiService {
     ): Response<Event>
     @DELETE("api/eventos/{id}")
     suspend fun eliminarEvento(@Path("id") id: Long): Response<Unit>
-
-
+    
     @FormUrlEncoded
     @POST("api/pedido/confirmar")
     suspend fun confirmarPedido(
         @Field("total") total: Double,
         @Field("idEvento") idEvento: Long
     ): ResponseBody
+
+    // COMPRAS Y TICKETS
+    @POST("api/pedido")
+    suspend fun crearPedido(@Body pedido: Map<String, @JvmSuppressWildcards Any>): Response<Map<String, Any>>
+
+    @POST("api/tickets/crear-tickets")
+    suspend fun crearTickets(@Body request: CrearTicketsRequest): Response<List<Ticket>>
+
+    @GET("api/tickets/cliente/{idCliente}")
+    suspend fun getTicketsCliente(@Path("idCliente") idCliente: Int): Response<List<Ticket>>
+
+    // VALIDACIÓN QR
+    @GET("api/tickets/validate")
+    suspend fun validarQr(@Query("qr") qrCode: String): QrResponse
+
+
+data class QrResponse(val status: String, val message: String? = null)
+
+data class CrearTicketsRequest(
+    val idCliente: Int,
+    val idPedido: Long,
+    val items: List<TicketItemRequest>
+)
+
+data class TicketItemRequest(
+    val idEvento: Long,
+    val tipoEntrada: String,
+    val cantidad: Int
+)
+
+
 
     object RetrofitClient {
 
@@ -92,3 +123,4 @@ interface ApiService {
             }
     }
 }
+    

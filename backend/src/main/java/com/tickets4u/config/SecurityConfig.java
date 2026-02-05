@@ -41,6 +41,7 @@ public class SecurityConfig {
                         "/api/auth/**",
                         "/h2-console/**"
                 ).permitAll()
+                .requestMatchers("/api/tickets").permitAll()
                 .requestMatchers("/api/eventos").permitAll()
                 .requestMatchers("/api/pedido/**").authenticated()  // 👈 AÑADIDO
                 .anyRequest().authenticated()
@@ -49,7 +50,19 @@ public class SecurityConfig {
         
         return http.build();
     }
-    
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*")); // Permitir el emulador de Android
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Permitir todos los headers
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+
+    }
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {

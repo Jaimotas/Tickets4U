@@ -205,6 +205,15 @@
                     android:textColor="@android:color/white"
                     android:backgroundTint="#673AB7" />
 
+                <Button
+                    android:id="@+id/btnScanQr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🎫 VALIDAR TICKET"
+                    android:layout_margin="16dp" />
+
+
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
