@@ -1,8 +1,6 @@
 package com.tickets4u.models;
 
-import com.tickets4u.models.Evento;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "estadisticas")
