@@ -20,13 +20,13 @@ public class Usuario {
     @Column(nullable = false)
     private String contrasena;
     
-    // TRUCO: Lo mapeamos como String en la base de datos para evitar el error de Hibernate
-    @Column(name = "rol")
-    private String rolString;
+    @Enumerated(EnumType.STRING)
+    private Rol rol;
     
     public enum Rol {
        admin,cliente
     }
+    /*
     @JsonCreator
     public static Rol fromString(String value) {
         if (value == null) return null;
@@ -35,8 +35,8 @@ public class Usuario {
 
     @JsonValue
     public String toValue() {
-        return this.name();
-    }
+        return this.rolString();
+    }*/
 
     public Usuario() {}
     
@@ -44,9 +44,18 @@ public class Usuario {
         this.nombreUsuario = nombreUsuario;
         this.email = email;
         this.contrasena = contrasena;
-        setRol(rol); // Usamos el setter para guardar como String
+        this.rol= rol;
+       // setRol(rol); // Usamos el setter para guardar como String
     }
-    
+    public Rol getRol() {
+		return rol;
+	}
+
+	public void setRol(Rol rol) {
+		this.rol = rol;
+	}
+
+	/*
     // Getters y Setters modificados para manejar el Enum
     public Rol getRol() {
         if (this.rolString == null) return null;
@@ -61,7 +70,7 @@ public class Usuario {
     public void setRol(Rol rol) {
         this.rolString = (rol == null) ? null : rol.name();
     }
-
+*/
     // Getters y Setters estándar
     public Long getId() { return id; }
     public String getNombreUsuario() { return nombreUsuario; }

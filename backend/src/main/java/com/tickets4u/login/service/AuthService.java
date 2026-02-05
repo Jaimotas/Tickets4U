@@ -1,8 +1,9 @@
 package com.tickets4u.login.service;
 
+import com.tickets4u.login.repositories.UsuarioLoginRepository;
 import com.tickets4u.models.Usuario;
 import com.tickets4u.models.Usuario.Rol;
-import com.tickets4u.login.repository.UsuarioLoginRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,8 @@
 package com.tickets4u.login.controller;
 import com.tickets4u.login.DTO.LoginRequest;
 import com.tickets4u.login.DTO.RegisterRequest;
-import com.tickets4u.login.DTO.RegisterResponse;	
+import com.tickets4u.login.DTO.RegisterResponse;
+import com.tickets4u.login.repositories.UsuarioLoginRepository;
 import com.tickets4u.login.service.AuthService.LoginResponse;
 import com.tickets4u.login.service.JwtService;
 import com.tickets4u.models.Usuario;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.tickets4u.login.repository.UsuarioLoginRepository;
 
 @RestController
 @RequestMapping("/api/auth")

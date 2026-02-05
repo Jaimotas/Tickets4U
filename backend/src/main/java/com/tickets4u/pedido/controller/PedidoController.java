@@ -2,10 +2,13 @@ package com.tickets4u.pedido.controller;
 
 import com.tickets4u.models.Evento;
 import com.tickets4u.models.Pedido;
+import com.tickets4u.models.Ticket;
 import com.tickets4u.models.Usuario;
-import com.tickets4u.pedido.repository.PedidoRepository;
-import com.tickets4u.login.repository.UsuarioLoginRepository;
+import com.tickets4u.pedido.repositories.PedidoRepository;
+import com.tickets4u.tickets.repositories.TicketRepository;
 import com.tickets4u.events.repositories.EventoRepository;
+import com.tickets4u.login.repositories.UsuarioLoginRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
@@ -16,7 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -27,7 +32,30 @@ public class PedidoController {
     @Autowired private UsuarioLoginRepository usuarioRepository;
     @Autowired private PedidoRepository pedidoRepository;
     @Autowired private EventoRepository eventoRepository;
+    @Autowired private TicketRepository ticketRepository;
 
+
+    @GetMapping
+    public List<Pedido> getAllPedidos() {
+        return pedidoRepository.findAll();
+    }
+    
+    /*
+    @PostMapping
+    public ResponseEntity<?> createPedido(@RequestBody Pedido pedido) {
+        try {
+            // Validación mínima antes de guardar
+            if (pedido.getCliente() == null || pedido.getEvento() == null) {
+                return ResponseEntity.badRequest().body("Falta cliente o evento en el pedido");
+            }
+            Pedido nuevoPedido = pedidoRepository.save(pedido);
+            return ResponseEntity.ok(nuevoPedido);
+        } catch (Exception e) {
+            e.printStackTrace(); // Ver error en consola de IntelliJ
+            return ResponseEntity.status(500).body("Error al crear pedido: " + e.getMessage());
+        }
+    }*/
+    
     @PostMapping("/pedido/confirmar")
     public ResponseEntity<?> confirmarPedido(
             @RequestParam double total,
@@ -74,9 +102,23 @@ public class PedidoController {
             pedido.setTotal(BigDecimal.valueOf(total));
             pedido.setPago("TARJETA");
             pedido = pedidoRepository.save(pedido);
+            
+         // 5.1) Crear ticket(s)
+            Ticket ticket = new Ticket();
+            ticket.setCliente(usuario);
+            ticket.setEvento(evento);
+            ticket.setPedido(pedido);
+            ticket.setTipoEntrada("GENERAL");
+            ticket.setEstado(Ticket.Estado.ACTIVO);
+            ticket.setQr(UUID.randomUUID().toString());
+
+            ticketRepository.save(ticket);
+
+            System.out.println("CONFIRMAR_PEDIDO: ticket creado para pedido " + pedido.getId());
+
 
             System.out.println("CONFIRMAR_PEDIDO: pedido guardado. idPedido=" + pedido.getId());
-
+            
             // 6) Enviar email
             SimpleMailMessage msg = new SimpleMailMessage();
             msg.setTo(email);
@@ -107,7 +149,16 @@ public class PedidoController {
             return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
         }
     }
-
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePedido(@PathVariable Long id) {
+        return pedidoRepository.findById(id)
+                .map(pedido -> {
+                    pedidoRepository.delete(pedido);
+                    return ResponseEntity.ok().build();
+                }).orElse(ResponseEntity.notFound().build());
+    }
+    
     private String safe(String s) {
         return s == null ? "" : s;
     }

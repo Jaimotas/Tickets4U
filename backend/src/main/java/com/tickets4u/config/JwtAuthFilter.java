@@ -1,7 +1,7 @@
 package com.tickets4u.config;
 
 import com.tickets4u.models.Usuario;
-import com.tickets4u.login.repository.UsuarioLoginRepository;
+import com.tickets4u.login.repositories.UsuarioLoginRepository;
 import com.tickets4u.login.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

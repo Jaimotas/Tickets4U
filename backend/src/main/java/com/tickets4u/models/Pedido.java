@@ -46,16 +46,7 @@ public class Pedido {
         this.pago = pago;
     }
 
-    public Pedido() {}
-
-    public Pedido(Usuario cliente, Evento evento, BigDecimal total, String pago) {
-        this.cliente = cliente;
-        this.evento = evento;
-        this.total = total;
-        this.pago = pago;
-    }
-
-    // Getters y Setters
+    public Long getId() { return id;	}
     public Usuario getCliente() { return cliente; }
     public void setCliente(Usuario cliente) { this.cliente = cliente; }
     public Evento getEvento() { return evento; }

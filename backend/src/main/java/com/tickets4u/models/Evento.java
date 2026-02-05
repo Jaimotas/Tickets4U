@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.tickets4u.models.Estadisticas;
 import java.util.List;
 
 @Entity
@@ -34,9 +35,6 @@ public class Evento {
     private Integer aforo;
     private String foto;
 
-    @Column(name = "categoria")
-    private String categoriaString;
-
     @OneToOne(mappedBy = "evento", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("evento")
     private Estadisticas estadisticas;
@@ -48,7 +46,12 @@ public class Evento {
     @OneToMany(mappedBy = "evento")
     @JsonIgnore
     private List<Ticket> tickets;
-
+    
+    @Column(name = "categoria")
+    @Enumerated(EnumType.STRING)
+    private Categoria categoria;
+    
+    
     public enum Categoria {
         ACTUAL, DESTACADO, INTERNACIONAL
     }
@@ -68,29 +71,17 @@ public class Evento {
         this.direccion = direccion;
         this.aforo = aforo;
         this.foto = foto;
-        this.categoria = categoria;
+        this.categoria = categoria; 
+        }
 
         // Getter para Estadísticas (Necesario para EventoService)
     public Estadisticas getEstadisticas() { return estadisticas; }
     public void setEstadisticas(Estadisticas estadisticas) { this.estadisticas = estadisticas; }
-
-    // Manejo de Categoría
-    public Categoria getCategoria() {
-        try {
-            return (categoriaString != null) ? Categoria.valueOf(categoriaString.toUpperCase()) : Categoria.ACTUAL;
-        } catch (Exception e) { return Categoria.ACTUAL; }
-
-    }
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoriaString = (categoria != null) ? categoria.name() : null;
-    }
-
     // Getters y Setters Estándar
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
     public Usuario getIdAdmin() { return idAdmin; }
     public void setIdAdmin(Usuario idAdmin) { this.idAdmin = idAdmin; }
     public String getNombre() { return nombre; }
@@ -111,4 +102,5 @@ public class Evento {
     public void setAforo(Integer aforo) { this.aforo = aforo; }
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
+
 }

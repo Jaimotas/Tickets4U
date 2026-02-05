@@ -3,11 +3,11 @@ package com.tickets4u.tickets.controllers;
 import com.tickets4u.models.Ticket;
 import com.tickets4u.models.Evento;
 import com.tickets4u.models.Usuario;
+import com.tickets4u.pedido.repositories.PedidoRepository;
 import com.tickets4u.models.Pedido;
 import com.tickets4u.tickets.repositories.TicketRepository;
 import com.tickets4u.events.repositories.EventoRepository;
-import com.tickets4u.events.repositories.UsuarioRepository;
-import com.tickets4u.pedidos.repositories.PedidoRepository;
+import com.tickets4u.events.repositories.UsuarioEventsRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class TicketController {
     private EventoRepository eventoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioEventsRepository usuarioRepository;
 
     @Autowired
     private PedidoRepository pedidoRepository;
