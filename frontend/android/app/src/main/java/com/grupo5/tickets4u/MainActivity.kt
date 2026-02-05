@@ -18,6 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.grupo5.tickets4u.eventos.ui.cart.CartActivity
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.view.View
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var actualesRecycler: RecyclerView
     private lateinit var internacionalesRecycler: RecyclerView
     private var isEditModeActive = false
+    private var userRole: String = "CLIENTE"
 
     private val qrScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -39,6 +43,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val prefs = getSharedPreferences("TICKETS4U_PREFS", Context.MODE_PRIVATE)
+        userRole = prefs.getString("USER_ROLE", "CLIENTE") ?: "CLIENTE"
+
         setupToolbarAndDrawer()
         setupRecyclerViews()
         setupCrearEventoButton()
@@ -46,38 +53,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupCrearEventoButton() {
-        findViewById<Button>(R.id.btnAbrirFormulario).setOnClickListener {
-            val dialog = CrearEventoDialogFragment(
-                eventoParaEditar = null,  // null = crear nuevo evento
-                onEventoGuardado = {
-                    fetchEventos()  // Recargar eventos cuando se guarde uno nuevo
-                }
-            )
-            dialog.show(supportFragmentManager, "CrearEventoDialog")
-        }
-        // --- LISTENERS DEL TOOLBAR (CARRITO Y PERFIL) ---
-        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
-            Log.d("NAV", "Abriendo Carrito")
-            // Intent para abrir tu actividad de carrito
-            startActivity(Intent(this, CartActivity::class.java))
-        }
+        val btnAbrirFormulario = findViewById<Button>(R.id.btnAbrirFormulario)
+        val btnGestionEventos = findViewById<ImageButton>(R.id.btn_gestion_eventos)
+        val btnScanQr = findViewById<Button>(R.id.btnScanQr)
 
-        findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
-            Toast.makeText(this, "Perfil de usuario (Próximamente)", Toast.LENGTH_SHORT).show()
-        }
+        val esAdmin = userRole.equals("admin", ignoreCase = true)
+        val visibilidad = if (esAdmin) View.VISIBLE else View.GONE
 
-        // --- OTROS BOTONES ---
-        findViewById<Button>(R.id.btnScanQr).setOnClickListener {
+        btnAbrirFormulario.visibility = visibilidad
+        btnGestionEventos.visibility = visibilidad
+        btnScanQr.visibility = visibilidad
+
+        // Listeners
+        btnAbrirFormulario.setOnClickListener { openEventDialog(null) }
+        btnScanQr.setOnClickListener {
             qrScannerLauncher.launch(Intent(this, QrScannerActivity::class.java))
         }
-
-        findViewById<ImageButton>(R.id.btn_gestion_eventos).setOnClickListener { view ->
+        btnGestionEventos.setOnClickListener { view ->
             isEditModeActive = !isEditModeActive
             (view as ImageButton).setColorFilter(if (isEditModeActive) Color.RED else Color.WHITE)
             updateAdaptersEditMode()
         }
 
-        findViewById<Button>(R.id.btnAbrirFormulario).setOnClickListener { openEventDialog(null) }
+        // Listeners comunes
+        findViewById<ImageView>(R.id.toolbar_cart).setOnClickListener {
+            startActivity(Intent(this, CartActivity::class.java))
+        }
+        findViewById<ImageView>(R.id.toolbar_profile).setOnClickListener {
+            Toast.makeText(this, "Perfil: $userRole", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupToolbarAndDrawer() {
@@ -151,10 +155,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openEventDialog(event: Event?) {
+        if (userRole != "admin") {
+            Toast.makeText(this, "No tienes permisos de administrador", Toast.LENGTH_SHORT).show()
+            return
+        }
         CrearEventoDialogFragment(event) { fetchEventos() }.show(supportFragmentManager, "EventDialog")
     }
 
     private fun confirmDelete(event: Event) {
+        if (userRole != "admin") return // Seguridad extra
+
         AlertDialog.Builder(this)
             .setTitle("Eliminar Evento")
             .setMessage("¿Estás seguro de eliminar ${event.nombre}?")
@@ -171,6 +181,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun validarQrEnBackend(qrCode: String) {
+        if (!userRole.equals("admin", ignoreCase = true)) {
+            Toast.makeText(this, "No tienes permiso para validar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         lifecycleScope.launch {
             try {
                 val response = ApiService.RetrofitClient.instance.validarQr(qrCode)
